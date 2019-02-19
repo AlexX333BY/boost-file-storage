@@ -11,8 +11,6 @@ namespace boost_file_storage
 		ERROR_COMMON,
 
 		// client commands
-		LIST_FILES_QUERY,
-		DOWNLOAD_FILE_QUERY,
 		UPLOAD_FILE_QUERY,
 
 		//server commands
