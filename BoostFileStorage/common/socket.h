@@ -8,6 +8,7 @@ namespace boost_file_storage
 	{
 	public:
 		socket();
+		virtual ~socket();
 		size_t get_buffer_size();
 		virtual boost::system::error_code stop();
 		socket_message *get_message(boost::system::error_code error);

@@ -7,6 +7,22 @@ namespace boost_file_storage
 	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr)
 	{ }
 
+	socket::~socket()
+	{
+		if (is_initialized())
+		{
+			stop();
+		}
+		if (m_buffer != nullptr)
+		{
+			free(m_buffer);
+		}
+		if (m_tcp_socket != nullptr)
+		{
+			delete m_tcp_socket;
+		}
+	}
+
 	void socket::throw_if_not_initialized()
 	{
 		if (!is_initialized())
