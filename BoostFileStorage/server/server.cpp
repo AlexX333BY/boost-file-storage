@@ -30,8 +30,8 @@ namespace boost_file_storage
 	{
 		if (!is_initialized())
 		{
-			boost::filesystem::path path(download_folder);
-			if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path))
+			std::filesystem::path path(download_folder);
+			if (std::filesystem::exists(path) && std::filesystem::is_directory(path))
 			{
 				server_socket *socket;
 				for (int i = 0; i < max_simultaneous_downloads; ++i)
