@@ -57,4 +57,9 @@ namespace boost_file_storage
 			bytes_to_skip -= cur_bytes_to_read;
 		}
 	}
+
+	size_t socket::get_buffer_size()
+	{
+		return m_buffer_max_size;
+	}
 }

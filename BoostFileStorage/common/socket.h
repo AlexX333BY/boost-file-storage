@@ -5,8 +5,6 @@
 
 namespace boost_file_storage
 {
-	typedef void (*message_processing_handler)(socket_message *, socket *);
-
 	class socket
 	{
 	public:
