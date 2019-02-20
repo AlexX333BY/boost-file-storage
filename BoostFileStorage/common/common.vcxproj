@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client_socket.h" />
+    <ClInclude Include="server_socket.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="socket_message.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client_socket.cpp" />
+    <ClCompile Include="server_socket.cpp" />
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="socket_message.cpp" />
   </ItemGroup>
