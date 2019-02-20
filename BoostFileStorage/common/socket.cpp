@@ -35,7 +35,7 @@ namespace boost_file_storage
 	{
 		throw_if_not_initialized();
 		boost::system::error_code error;
-		boost::asio::read(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
+		boost::asio::read(*m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
 	}
 
@@ -43,7 +43,7 @@ namespace boost_file_storage
 	{
 		throw_if_not_initialized();
 		boost::system::error_code error;
-		boost::asio::write(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
+		boost::asio::write(*m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
 	}
 
