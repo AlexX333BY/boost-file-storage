@@ -2,15 +2,26 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket() : m_is_initialized(false)
-	{ }
+	server_socket::server_socket(unsigned short port) : m_is_initialized(false), m_context(new boost::asio::io_context())
+	{
+		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+		m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, endpoint);
+		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+	}
+
+	server_socket::~server_socket()
+	{
+		stop();
+		delete m_acceptor;
+		delete m_context;
+	}
 
 	bool server_socket::is_initialized()
 	{
 		return m_is_initialized;
 	}
 
-	bool server_socket::initialize(unsigned short port, size_t desired_buffer_size)
+	bool server_socket::initialize(size_t desired_buffer_size)
 	{
 		if (!is_initialized())
 		{
@@ -18,19 +29,6 @@ namespace boost_file_storage
 			m_buffer = malloc(buffer_size);
 			if (m_buffer == nullptr)
 			{
-				return false;
-			}
-
-			boost::system::error_code error;
-			boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
-			m_tcp_socket = new boost::asio::ip::tcp::socket(m_context);
-			m_tcp_socket->connect(endpoint, error);
-			if (error)
-			{
-				free(m_buffer);
-				m_buffer = nullptr;
-				delete m_tcp_socket;
-				m_tcp_socket = nullptr;
 				return false;
 			}
 
@@ -42,5 +40,13 @@ namespace boost_file_storage
 		{
 			return false;
 		}
+	}
+
+	boost::system::error_code server_socket::accept()
+	{
+		throw_if_not_initialized();
+		boost::system::error_code error;
+		m_acceptor->accept(*m_tcp_socket, error);
+		return error;
 	}
 }

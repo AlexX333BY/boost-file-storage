@@ -8,10 +8,12 @@ namespace boost_file_storage
 	{
 	public:
 		client_socket();
-		bool initialize(std::string ip, unsigned short port, size_t desired_buffer_size);
+		~client_socket();
+		bool initialize(size_t desired_buffer_size);
 		virtual bool is_initialized();
+		boost::system::error_code connect(std::string ip, unsigned short port);
 	protected:
-		boost::asio::io_context m_context;
+		boost::asio::io_context *m_context;
 		bool m_is_initialized;
 	};
 }
