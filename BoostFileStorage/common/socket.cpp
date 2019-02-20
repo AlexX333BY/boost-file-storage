@@ -31,53 +31,79 @@ namespace boost_file_storage
 		return error;
 	}
 
-	socket_message *socket::get_message()
+	socket_message *socket::get_message(boost::system::error_code error)
 	{
 		throw_if_not_initialized();
-		get_data(m_buffer, m_buffer_size, sizeof(message_type));
+		error = get_data(m_buffer, m_buffer_size, sizeof(message_type));
+		if (error)
+		{
+			return nullptr;
+		}
 		message_type type;
 		memcpy_s(&type, sizeof(message_type), m_buffer, sizeof(message_type));
 
-		get_data(m_buffer, m_buffer_size, sizeof(size_t));
+		error = get_data(m_buffer, m_buffer_size, sizeof(size_t));
+		if (error)
+		{
+			return nullptr;
+		}
 		size_t data_size;
 		memcpy_s(&data_size, sizeof(size_t), m_buffer, sizeof(size_t));
 
 		void *data_buffer = nullptr;
 		if ((data_size != 0) && (data_size <= m_buffer_size))
 		{
+			error = get_data(m_buffer, m_buffer_size, data_size);
+			if (error)
+			{
+				return nullptr;
+			}
 			data_buffer = malloc(data_size);
-			get_data(m_buffer, m_buffer_size, data_size);
 			memcpy_s(data_buffer, data_size, m_buffer, data_size);
 		}
 
 		return new socket_message(type, data_size, data_buffer);
 	}
 
-	void socket::send_message(socket_message *message)
+	void socket::send_message(socket_message *message, boost::system::error_code error)
 	{
 		throw_if_not_initialized();
 		message_type type = message->get_message_type();
 		void *data = message->get_buffer();
 		size_t data_size = message->get_buffer_length();
 
-		send_data(&type, sizeof(message_type), sizeof(message_type));
-		send_data(&data_size, sizeof(size_t), sizeof(size_t));
+		error = send_data(&type, sizeof(message_type), sizeof(message_type));
+		if (error)
+		{
+			return;
+		}
+		error = send_data(&data_size, sizeof(size_t), sizeof(size_t));
+		if (error)
+		{
+			return;
+		}
 		if ((data_size != 0) && (data != nullptr))
 		{
-			send_data(data, data_size, data_size);
+			error = send_data(data, data_size, data_size);
 		}
 	}
 
-	void socket::skip(size_t bytes_to_skip)
+	boost::system::error_code socket::skip(size_t bytes_to_skip)
 	{
 		throw_if_not_initialized();
+		boost::system::error_code error;
 		size_t cur_bytes_to_read;
 		while (bytes_to_skip > 0)
 		{
 			cur_bytes_to_read = std::min(bytes_to_skip, m_buffer_size);
-			get_data(m_buffer, m_buffer_size, cur_bytes_to_read);
+			error = get_data(m_buffer, m_buffer_size, cur_bytes_to_read);
+			if (error)
+			{
+				return error;
+			}
 			bytes_to_skip -= cur_bytes_to_read;
 		}
+		return error;
 	}
 
 	size_t socket::get_buffer_size()
@@ -91,6 +117,10 @@ namespace boost_file_storage
 		throw_if_not_initialized();
 		boost::system::error_code error;
 		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+		if (error)
+		{
+			return error;
+		}
 		m_tcp_socket->close(error);
 		return error;
 	}
