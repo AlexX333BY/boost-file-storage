@@ -1,10 +1,23 @@
 #include "socket.h"
 #include <algorithm>
+#include <exception>
 
 namespace boost_file_storage
 {
+	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr)
+	{ }
+
+	void socket::throw_if_not_initialized()
+	{
+		if (!is_initialized())
+		{
+			throw new std::exception();
+		}
+	}
+
 	boost::system::error_code socket::get_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
+		throw_if_not_initialized();
 		boost::system::error_code error;
 		boost::asio::read(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
@@ -12,6 +25,7 @@ namespace boost_file_storage
 
 	boost::system::error_code socket::send_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
+		throw_if_not_initialized();
 		boost::system::error_code error;
 		boost::asio::write(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
@@ -19,6 +33,7 @@ namespace boost_file_storage
 
 	socket_message *socket::get_message()
 	{
+		throw_if_not_initialized();
 		get_data(m_buffer, m_buffer_size, sizeof(message_type));
 		message_type type;
 		memcpy_s(&type, sizeof(message_type), m_buffer, sizeof(message_type));
@@ -40,6 +55,7 @@ namespace boost_file_storage
 
 	void socket::send_message(socket_message *message)
 	{
+		throw_if_not_initialized();
 		message_type type = message->get_message_type();
 		void *data = message->get_buffer();
 		size_t data_size = message->get_buffer_length();
@@ -54,6 +70,7 @@ namespace boost_file_storage
 
 	void socket::skip(size_t bytes_to_skip)
 	{
+		throw_if_not_initialized();
 		size_t cur_bytes_to_read;
 		while (bytes_to_skip > 0)
 		{
@@ -65,11 +82,13 @@ namespace boost_file_storage
 
 	size_t socket::get_buffer_size()
 	{
+		throw_if_not_initialized();
 		return m_buffer_size;
 	}
 
 	boost::system::error_code socket::stop()
 	{
+		throw_if_not_initialized();
 		boost::system::error_code error;
 		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
 		m_tcp_socket->close(error);
