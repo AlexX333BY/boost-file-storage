@@ -3,30 +3,35 @@
 
 namespace boost_file_storage
 {
-	void socket::read_to_buffer(size_t bytes_to_read)
+	boost::system::error_code socket::get_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
-		boost::asio::read(m_tcp_socket, boost::asio::buffer(m_buffer, m_buffer_max_size), boost::asio::transfer_exactly(bytes_to_read));
+		boost::system::error_code error;
+		boost::asio::read(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
+		return error;
 	}
 
-	void socket::write_to_socket(void *what_to_write, size_t size)
+	boost::system::error_code socket::send_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
-		boost::asio::write(m_tcp_socket, boost::asio::buffer(what_to_write, m_buffer_max_size), boost::asio::transfer_exactly(size));
+		boost::system::error_code error;
+		boost::asio::write(m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
+		return error;
 	}
 
 	socket_message *socket::get_message()
 	{
-		read_to_buffer(sizeof(message_type));
+		get_data(m_buffer, m_buffer_size, sizeof(message_type));
 		message_type type;
 		memcpy_s(&type, sizeof(message_type), m_buffer, sizeof(message_type));
 
-		read_to_buffer(sizeof(size_t));
+		get_data(m_buffer, m_buffer_size, sizeof(size_t));
 		size_t data_size;
 		memcpy_s(&data_size, sizeof(size_t), m_buffer, sizeof(size_t));
 
 		void *data_buffer = nullptr;
-		if ((data_size != 0) && (data_size <= m_buffer_max_size))
+		if ((data_size != 0) && (data_size <= m_buffer_size))
 		{
 			data_buffer = malloc(data_size);
+			get_data(m_buffer, m_buffer_size, data_size);
 			memcpy_s(data_buffer, data_size, m_buffer, data_size);
 		}
 
@@ -37,13 +42,13 @@ namespace boost_file_storage
 	{
 		message_type type = message->get_message_type();
 		void *data = message->get_buffer();
-		size_t data_size = (data == nullptr) ? 0 : message->get_buffer_length();
+		size_t data_size = message->get_buffer_length();
 
-		write_to_socket(&type, sizeof(message_type));
-		write_to_socket(&data_size, sizeof(size_t));
+		send_data(&type, sizeof(message_type), sizeof(message_type));
+		send_data(&data_size, sizeof(size_t), sizeof(size_t));
 		if ((data_size != 0) && (data != nullptr))
 		{
-			write_to_socket(data, data_size);
+			send_data(data, data_size, data_size);
 		}
 	}
 
@@ -52,14 +57,22 @@ namespace boost_file_storage
 		size_t cur_bytes_to_read;
 		while (bytes_to_skip > 0)
 		{
-			cur_bytes_to_read = std::min(bytes_to_skip, m_buffer_max_size);
-			read_to_buffer(cur_bytes_to_read);
+			cur_bytes_to_read = std::min(bytes_to_skip, m_buffer_size);
+			get_data(m_buffer, m_buffer_size, cur_bytes_to_read);
 			bytes_to_skip -= cur_bytes_to_read;
 		}
 	}
 
 	size_t socket::get_buffer_size()
 	{
-		return m_buffer_max_size;
+		return m_buffer_size;
+	}
+
+	boost::system::error_code socket::stop()
+	{
+		boost::system::error_code error;
+		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+		m_tcp_socket->close(error);
+		return error;
 	}
 }
