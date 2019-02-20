@@ -47,6 +47,10 @@ namespace boost_file_storage
 		throw_if_not_initialized();
 		boost::system::error_code error;
 		m_acceptor->accept(*m_tcp_socket, error);
+		if (!error)
+		{
+			m_is_running = true;
+		}
 		return error;
 	}
 }

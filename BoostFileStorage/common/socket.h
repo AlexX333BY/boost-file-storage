@@ -10,7 +10,8 @@ namespace boost_file_storage
 		socket();
 		virtual ~socket();
 		size_t get_buffer_size();
-		virtual boost::system::error_code stop();
+		boost::system::error_code stop();
+		bool is_running();
 		socket_message *get_message(boost::system::error_code error);
 		void send_message(socket_message *message, boost::system::error_code error);
 		boost::system::error_code get_data(void *buffer, size_t buffer_size, size_t data_size);
@@ -22,5 +23,6 @@ namespace boost_file_storage
 		boost::asio::ip::tcp::socket *m_tcp_socket;
 		void *m_buffer;
 		size_t m_buffer_size;
+		bool m_is_running;
 	};
 }

@@ -4,12 +4,12 @@
 
 namespace boost_file_storage
 {
-	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr)
+	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr), m_is_running(false)
 	{ }
 
 	socket::~socket()
 	{
-		if (is_initialized())
+		if (is_running())
 		{
 			stop();
 		}
@@ -137,7 +137,13 @@ namespace boost_file_storage
 		{
 			return error;
 		}
+		m_is_running = false;
 		m_tcp_socket->close(error);
 		return error;
+	}
+
+	bool socket::is_running()
+	{
+		return m_is_running;
 	}
 }

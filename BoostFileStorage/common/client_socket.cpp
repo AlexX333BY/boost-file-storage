@@ -49,9 +49,10 @@ namespace boost_file_storage
 
 		boost::asio::ip::tcp::endpoint endpoint(nonstr_ip, port);
 		m_tcp_socket->connect(endpoint, error);
-		if (error)
+		if (!error)
 		{
-			return error;
+			m_is_running = true;
 		}
+		return error;
 	}
 }
