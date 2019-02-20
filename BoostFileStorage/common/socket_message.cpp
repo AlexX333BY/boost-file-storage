@@ -1,15 +1,29 @@
 #include "socket_message.h"
 #include <stdlib.h>
+#include <memory.h>
 
 namespace boost_file_storage
 {
-	socket_message::socket_message(message_type message_type, size_t data_buffer_length = 0, void *data_bufffer = nullptr)
-		: m_message_type(message_type), m_buffer_length(data_buffer_length), m_buffer(data_bufffer)
-	{ }
+	socket_message::socket_message(message_type message_type, size_t data_buffer_length = 0, void *data_buffer = nullptr)
+		: m_message_type(message_type), m_buffer_length(data_buffer_length)
+	{
+		if (data_buffer != nullptr)
+		{
+			m_buffer = malloc(m_buffer_length);
+			memcpy_s(m_buffer, m_buffer_length, data_buffer, m_buffer_length);
+		}
+		else
+		{
+			m_buffer = nullptr;
+		}
+	}
 
 	socket_message::~socket_message()
 	{
-		free(m_buffer);
+		if (m_buffer != nullptr)
+		{
+			free(m_buffer);
+		}
 	}
 
 	message_type socket_message::get_message_type()
