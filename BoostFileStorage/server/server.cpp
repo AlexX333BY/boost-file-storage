@@ -2,7 +2,7 @@
 
 namespace boost_file_storage
 {
-	server::server() : m_is_initialized(false)
+	server::server() : m_state(UNINITIALIZED)
 	{ }
 
 	server::~server()
@@ -48,7 +48,7 @@ namespace boost_file_storage
 
 				m_download_folder = path;
 				m_thread_count = max_simultaneous_downloads;
-				m_is_initialized = true;
+				m_state = INITIALIZED;
 				return true;
 			}
 			else
@@ -64,6 +64,11 @@ namespace boost_file_storage
 
 	bool server::is_initialized()
 	{
-		return m_is_initialized;
+		return m_state != UNINITIALIZED;
+	}
+
+	bool server::is_running()
+	{
+		return m_state == RUNNING;
 	}
 }

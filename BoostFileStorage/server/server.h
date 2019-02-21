@@ -7,6 +7,13 @@
 
 namespace boost_file_storage
 {
+	enum server_state
+	{
+		UNINITIALIZED,
+		INITIALIZED,
+		RUNNING
+	};
+
 	class server
 	{
 	public:
@@ -14,6 +21,7 @@ namespace boost_file_storage
 		~server();
 		bool initialize(unsigned short listen_port, std::string download_folder, size_t max_file_size, unsigned char max_simultaneous_downloads);
 		bool is_initialized();
+		bool is_running();
 		void start();
 		void stop();
 	protected:
@@ -21,6 +29,6 @@ namespace boost_file_storage
 		std::vector<std::thread *> m_threads;
 		std::filesystem::path m_download_folder;
 		unsigned char m_thread_count;
-		bool m_is_initialized;
+		server_state m_state;
 	};
 }
