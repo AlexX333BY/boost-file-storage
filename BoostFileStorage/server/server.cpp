@@ -9,14 +9,13 @@ namespace boost_file_storage
 
 	server::~server()
 	{
-		for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
+		if (is_running())
 		{
-			(*it)->stop();
-			delete *it;
+			stop();
 		}
-		for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
+		else if (is_initialized())
 		{
-			delete *it;
+			clear_sockets();
 		}
 	}
 
@@ -30,7 +29,7 @@ namespace boost_file_storage
 
 		while (should_run->load())
 		{
-			while (!is_client_connected)
+			while (should_run->load() && !is_client_connected)
 			{
 				is_client_connected = socket->accept() ? true : false;
 			}
@@ -60,6 +59,10 @@ namespace boost_file_storage
 	{
 		for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 		{
+			if ((*it)->is_running())
+			{
+				(*it)->stop();
+			}
 			delete *it;
 		}
 		m_sockets.clear();
@@ -69,6 +72,7 @@ namespace boost_file_storage
 	{
 		for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
 		{
+			(*it)->join();
 			delete *it;
 		}
 		m_threads.clear();
@@ -142,12 +146,8 @@ namespace boost_file_storage
 	{
 		if (is_running())
 		{
-			m_should_run = false;
+			m_should_run.store(false);
 
-			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
-			{
-				(*it)->stop();
-			}
 			clear_sockets();
 			clear_threads();
 
