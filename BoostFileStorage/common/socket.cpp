@@ -11,6 +11,8 @@ namespace boost_file_storage
 	{
 		if (is_running())
 		{
+			boost::system::error_code error;
+			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
 			stop();
 		}
 		if (m_buffer != nullptr)
@@ -132,13 +134,11 @@ namespace boost_file_storage
 	{
 		throw_if_not_initialized();
 		boost::system::error_code error;
-		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-		if (error)
-		{
-			return error;
-		}
-		m_is_running = false;
 		m_tcp_socket->close(error);
+		if (!error)
+		{
+			m_is_running = false;
+		}
 		return error;
 	}
 

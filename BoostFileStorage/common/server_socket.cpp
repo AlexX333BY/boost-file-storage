@@ -11,7 +11,6 @@ namespace boost_file_storage
 
 	server_socket::~server_socket()
 	{
-		stop();
 		delete m_acceptor;
 		delete m_context;
 	}
