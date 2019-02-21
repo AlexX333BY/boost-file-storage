@@ -78,10 +78,9 @@ namespace boost_file_storage
 	{
 		server_message_handler h = server_file_handler;
 		std::map<message_type, server_message_handler> map;
-		map.insert[DISCONNECT] = server_disconnect_handler;
-		map.insert[UPLOAD_FILE_QUERY] = server_file_query_handler;
-		map.insert[FILE] = server_file_handler;
+		map[DISCONNECT] = server_disconnect_handler;
+		map[UPLOAD_FILE_QUERY] = server_file_query_handler;
+		map[FILE] = server_file_handler;
 		return map;
-
 	}
 }
