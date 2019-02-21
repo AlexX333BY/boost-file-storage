@@ -20,11 +20,11 @@ namespace boost_file_storage
 		}
 	}
 
-	void socket_thread(server_socket *socket, std::atomic_bool *should_run, std::filesystem::path *download_folder)
+	void socket_thread(server_socket *socket, std::atomic_bool *should_run, std::experimental::filesystem::path *download_folder)
 	{
 		boost::system::error_code error;
 		socket_message *client_message;
-		std::filesystem::path save_file_path;
+		std::experimental::filesystem::path save_file_path;
 		bool is_client_connected = false;
 		std::map<message_type, server_message_handler> handlers = get_server_handlers();
 
@@ -78,8 +78,8 @@ namespace boost_file_storage
 	{
 		if (!is_initialized())
 		{
-			std::filesystem::path path(download_folder);
-			if (std::filesystem::exists(path) && std::filesystem::is_directory(path))
+			std::experimental::filesystem::path path(download_folder);
+			if (std::experimental::filesystem::exists(path) && std::experimental::filesystem::is_directory(path))
 			{
 				server_socket *socket;
 				for (int i = 0; i < max_simultaneous_downloads; ++i)
@@ -130,6 +130,7 @@ namespace boost_file_storage
 			}
 
 			m_state = RUNNING;
+			return true;
 		}
 		else
 		{
