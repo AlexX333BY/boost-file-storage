@@ -2,10 +2,8 @@
 
 namespace boost_file_storage
 {
-	server::server() : m_state(UNINITIALIZED)
-	{
-		m_should_run.store(false);
-	}
+	server::server() : m_state(UNINITIALIZED), m_should_run(false)
+	{ }
 
 	server::~server()
 	{
