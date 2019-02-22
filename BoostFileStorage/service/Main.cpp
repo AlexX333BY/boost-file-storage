@@ -28,9 +28,9 @@ int main()
 }
 #else
 #include <stdio.h>
-#include <Windows.h>
 #include "service.h"
 #include "ServiceArguments.h"
+#include <Windows.h>
 
 const LPCTSTR lpcInstallArgument = "-i";
 
@@ -54,7 +54,7 @@ BOOL InstallService()
 
 	hService = CreateService(hSCManager, boost_file_storage::lpcsServiceName, boost_file_storage::lpcsServiceDescription, SERVICE_ALL_ACCESS,
 		SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
-		lptsPath, NULL, NULL, NULL, "NT AUTHORITY\\NetworkService", NULL);
+		lptsPath, NULL, NULL, NULL, ".\\LocalSystem", NULL);
 
 	if (hService == NULL)
 	{
@@ -90,24 +90,14 @@ int main(int argc, char **argv)
 			return 3;
 		}
 	}
-	else if (argc == boost_file_storage::ServiceArguments::GetRequiredArgumentsCount())
+	else if (argc > 2)
 	{
-		int iResult;
-		boost_file_storage::ServiceArguments *saArguments = new boost_file_storage::ServiceArguments();
-		if (saArguments->SetData(argc, argv))
-		{
-			iResult = boost_file_storage::StartStorageService(saArguments) ? 0 : 1;
-		}
-		else
-		{
-			iResult = 2;
-		}
-		delete saArguments;
-		return iResult;
+		printf("Too much arguments\n");
+		return 3;
 	}
 	else
 	{
-		return 2;
+		return boost_file_storage::StartStorageService() ? 0 : 1;
 	}
 
 	return 0;
