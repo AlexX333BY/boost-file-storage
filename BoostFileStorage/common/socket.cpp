@@ -4,28 +4,8 @@
 
 namespace boost_file_storage
 {
-	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr), m_is_running(false), m_context(nullptr)
+	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr)
 	{ }
-
-	socket::~socket()
-	{
-		if (is_running())
-		{
-			stop();
-		}
-		if (m_buffer != nullptr)
-		{
-			free(m_buffer);
-		}
-		if (m_tcp_socket != nullptr)
-		{
-			delete m_tcp_socket;
-		}
-		if (m_context != nullptr)
-		{
-			delete m_context;
-		}
-	}
 
 	void socket::throw_if_not_initialized()
 	{
@@ -130,23 +110,5 @@ namespace boost_file_storage
 	{
 		throw_if_not_initialized();
 		return m_buffer_size;
-	}
-
-	boost::system::error_code socket::stop()
-	{
-		throw_if_not_initialized();
-		boost::system::error_code error;
-		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-		if (!error)
-		{
-			m_is_running = false;
-			m_tcp_socket->close(error);
-		}
-		return error;
-	}
-
-	bool socket::is_running()
-	{
-		return m_is_running;
 	}
 }
