@@ -4,7 +4,7 @@
 
 namespace boost_file_storage
 {
-	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr), m_is_running(false)
+	socket::socket() : m_buffer(nullptr), m_buffer_size(0), m_tcp_socket(nullptr), m_is_running(false), m_context(nullptr)
 	{ }
 
 	socket::~socket()
@@ -20,6 +20,10 @@ namespace boost_file_storage
 		if (m_tcp_socket != nullptr)
 		{
 			delete m_tcp_socket;
+		}
+		if (m_context != nullptr)
+		{
+			delete m_context;
 		}
 	}
 

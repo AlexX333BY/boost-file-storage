@@ -12,7 +12,6 @@ namespace boost_file_storage
 		boost::system::error_code accept();
 		virtual bool is_initialized();
 	protected:
-		boost::asio::io_context *m_context;
 		boost::asio::ip::tcp::acceptor *m_acceptor;
 		bool m_is_initialized;
 	};

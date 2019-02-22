@@ -2,8 +2,9 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket(unsigned short port) : m_is_initialized(false), m_context(new boost::asio::io_context())
+	server_socket::server_socket(unsigned short port) : m_is_initialized(false)
 	{
+		m_context = new boost::asio::io_context();
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 		m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, endpoint);
 		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
@@ -12,7 +13,6 @@ namespace boost_file_storage
 	server_socket::~server_socket()
 	{
 		delete m_acceptor;
-		delete m_context;
 	}
 
 	bool server_socket::is_initialized()

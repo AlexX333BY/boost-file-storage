@@ -24,5 +24,6 @@ namespace boost_file_storage
 		void *m_buffer;
 		size_t m_buffer_size;
 		bool m_is_running;
+		boost::asio::io_context *m_context;
 	};
 }
