@@ -59,10 +59,6 @@ namespace boost_file_storage
 	{
 		for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 		{
-			if ((*it)->is_running())
-			{
-				(*it)->stop();
-			}
 			delete *it;
 		}
 		m_sockets.clear();
@@ -72,7 +68,10 @@ namespace boost_file_storage
 	{
 		for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
 		{
-			(*it)->join();
+			if ((*it)->joinable())
+			{
+				(*it)->detach();
+			}
 			delete *it;
 		}
 		m_threads.clear();
@@ -148,7 +147,19 @@ namespace boost_file_storage
 		{
 			m_should_run.store(false);
 
+			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
+			{
+				if ((*it)->is_running())
+				{
+					(*it)->stop();
+				}
+			}
 			clear_sockets();
+
+			for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
+			{
+				(*it)->join();
+			}
 			clear_threads();
 
 			m_state = UNINITIALIZED;
