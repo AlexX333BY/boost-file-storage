@@ -18,6 +18,8 @@ namespace boost_file_storage
 		unsigned char GetSimultaneousDownloadCount();
 		VOID SetMaxFileSize(size_t sFileSize);
 		size_t GetMaxFileSize();
+
+		static BYTE GetRequiredArgumentsCount();
 	protected:
 		std::string m_sDownloadFolder;
 		unsigned short m_usListenPort;

@@ -8,7 +8,7 @@ namespace boost_file_storage
 
 	BOOL ServiceArguments::SetData(int argc, char **argv)
 	{
-		if (argc == 5)
+		if (argc == GetRequiredArgumentsCount())
 		{
 			char **endptr;
 			unsigned long long ullTemp;
@@ -95,5 +95,10 @@ namespace boost_file_storage
 	size_t ServiceArguments::GetMaxFileSize()
 	{
 		return m_sFileSize;
+	}
+
+	BYTE ServiceArguments::GetRequiredArgumentsCount()
+	{
+		return 5;
 	}
 }
