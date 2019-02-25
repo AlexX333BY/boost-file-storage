@@ -16,12 +16,9 @@ namespace boost_file_storage
 		boost::system::error_code skip(size_t bytes_to_skip);
 
 		virtual bool is_running() = 0;
-		virtual bool is_initialized() = 0;
 		virtual boost::system::error_code stop() = 0;
 	protected:
-		void throw_if_not_initialized();
 		boost::asio::ip::tcp::socket *m_tcp_socket;
-		void *m_buffer;
 		size_t m_buffer_size;
 	};
 }

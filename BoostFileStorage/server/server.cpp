@@ -87,12 +87,7 @@ namespace boost_file_storage
 				server_socket *socket;
 				for (int i = 0; i < max_simultaneous_downloads; ++i)
 				{
-					socket = new server_socket(listen_port);
-					if (!socket->initialize(max_file_size))
-					{
-						clear_sockets();
-						return false;
-					}
+					socket = new server_socket(listen_port, max_file_size);
 					m_sockets.push_back(socket);
 				}
 

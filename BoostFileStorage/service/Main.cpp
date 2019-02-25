@@ -24,6 +24,7 @@ int main()
 		}
 	}
 	delete s;
+	system("pause");
 	return 0;
 }
 #else
