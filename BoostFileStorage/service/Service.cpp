@@ -61,14 +61,16 @@ namespace boost_file_storage
 			return;
 		}
 
+		g_ssServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+		ReportServiceStatus(SERVICE_START_PENDING, 0);
+
 		ServiceArguments saArguments;
 		if (saArguments.SetData(dwArgc, lpszArgv))
 		{
-			g_ssServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-			ReportServiceStatus(SERVICE_START_PENDING, 0);
+			ReportServiceStatus(SERVICE_START_PENDING, 1);
 
 			g_hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-			ReportServiceStatus(SERVICE_START_PENDING, 1);
+			ReportServiceStatus(SERVICE_START_PENDING, 2);
 
 			if (g_hStopEvent == NULL)
 			{
@@ -77,7 +79,7 @@ namespace boost_file_storage
 			}
 
 			g_sStorageServer = new server();
-			ReportServiceStatus(SERVICE_START_PENDING, 2);
+			ReportServiceStatus(SERVICE_START_PENDING, 3);
 
 			if (!g_sStorageServer->initialize(saArguments.GetListenPort(), saArguments.GetDownloadFolder(),
 				saArguments.GetMaxFileSize(), saArguments.GetSimultaneousDownloadCount()))
@@ -86,7 +88,7 @@ namespace boost_file_storage
 				return;
 			}
 
-			ReportServiceStatus(SERVICE_START_PENDING, 3);
+			ReportServiceStatus(SERVICE_START_PENDING, 4);
 
 			if (!g_sStorageServer->start())
 			{
@@ -98,6 +100,11 @@ namespace boost_file_storage
 			ReportServiceStatus(SERVICE_RUNNING);
 
 			WaitForSingleObject(g_hStopEvent, INFINITE);
+		}
+		else
+		{
+			ReportServiceStatus(SERVICE_STOPPED, 0, 0, ERROR_SERVICE_SPECIFIC_ERROR, dwServerInitializeError);
+			return;
 		}
 
 		ReportServiceStatus(SERVICE_STOPPED);

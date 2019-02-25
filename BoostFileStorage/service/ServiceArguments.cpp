@@ -6,7 +6,7 @@ namespace boost_file_storage
 	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0)
 	{ }
 
-	BOOL ServiceArguments::SetData(int argc, char **argv)
+	BOOL ServiceArguments::SetData(DWORD argc, LPTSTR *argv)
 	{
 		if (argc == GetRequiredArgumentsCount())
 		{

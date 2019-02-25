@@ -6,10 +6,10 @@ using namespace boost_file_storage;
 
 int main()
 {
-	const std::string dbg_download_dir = "C:\\Users\\user\\Downloads";
-	const unsigned char dbg_threads = 16;
 	const unsigned short dbg_port = 8080;
+	const std::string dbg_download_dir = "C:\\Users\\user\\Downloads";
 	const size_t dbg_max_file_size = 70000;
+	const unsigned char dbg_threads = 16;
 
 	server *s = new server();
 	bool is_initialized = s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads);
