@@ -2,10 +2,11 @@
 
 namespace boost_file_storage
 {
-	client_socket::client_socket(size_t desired_buffer_size) : m_context(new boost::asio::io_context())
+	client_socket::client_socket(size_t desired_buffer_size) 
+		: socket(), m_context(new boost::asio::io_context()), m_is_running(false)
 	{ 
-		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
 		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
+		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
 	}
 
 	client_socket::~client_socket()

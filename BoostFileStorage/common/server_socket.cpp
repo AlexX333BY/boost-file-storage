@@ -3,7 +3,7 @@
 namespace boost_file_storage
 {
 	server_socket::server_socket(unsigned short port, size_t desired_buffer_size) 
-		: m_is_running(false), m_context(new boost::asio::io_context())
+		: socket(), m_is_running(false), m_context(new boost::asio::io_context())
 	{
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 		m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, endpoint);
