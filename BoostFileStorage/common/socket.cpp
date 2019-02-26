@@ -57,7 +57,12 @@ namespace boost_file_storage
 			}
 		}
 
-		return new socket_message(type, data_size, data_buffer);
+		socket_message *message = new socket_message(type, data_size, data_buffer);
+		if (data_buffer != nullptr)
+		{
+			free(data_buffer);
+		}
+		return message;
 	}
 
 	void socket::send_message(socket_message *message, boost::system::error_code error)
