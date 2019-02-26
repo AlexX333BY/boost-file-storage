@@ -16,6 +16,7 @@ namespace boost_file_storage
 	{
 	public:
 		FileStorageFrame(const wxString& title, const int border = 5);
+		~FileStorageFrame();
 	protected:
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);

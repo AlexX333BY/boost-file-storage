@@ -44,6 +44,18 @@ namespace boost_file_storage
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnFolderAdd, this);
 	}
 
+	FileStorageFrame::~FileStorageFrame()
+	{
+		if (m_socket != nullptr)
+		{
+			if (m_socket->is_running())
+			{
+				m_socket->stop();
+			}
+			delete m_socket;
+		}
+	}
+
 	void FileStorageFrame::Log(const wxString *messages, unsigned int count)
 	{
 		m_log->InsertItems(count, messages, m_log->GetCount());
