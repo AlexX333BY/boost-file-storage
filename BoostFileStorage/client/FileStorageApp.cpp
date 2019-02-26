@@ -6,7 +6,7 @@ namespace boost_file_storage
 {
 	bool FileStorageApp::OnInit()
 	{
-		(new FileStorageFrame("Frame test"))->Show(true);
+		(new FileStorageFrame("Boost File Storage"))->Show(true);
 		return true;
 	}
 }

@@ -35,6 +35,11 @@
     <ClInclude Include="PortValidator.h" />
     <ClInclude Include="TextCtrlValidator.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{dbb770e4-1658-4324-acf4-c0170b31f22f}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{70A3AAE4-D7B2-4D07-9D90-D52510EA2C4C}</ProjectGuid>
