@@ -8,6 +8,7 @@ namespace boost_file_storage
 	{
 	public:
 		ServiceArguments();
+		~ServiceArguments();
 		BOOL SetData(DWORD dwArgc, LPTSTR *lpszArgv);
 
 		VOID SetDownloadFolder(const std::string *sDownloadFolder);

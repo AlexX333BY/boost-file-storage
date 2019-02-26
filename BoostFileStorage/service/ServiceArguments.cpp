@@ -3,8 +3,16 @@
 
 namespace boost_file_storage
 {
-	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0)
+	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0), m_sDownloadFolder(NULL)
 	{ }
+
+	ServiceArguments::~ServiceArguments()
+	{
+		if (m_sDownloadFolder != NULL)
+		{
+			delete m_sDownloadFolder;
+		}
+	}
 
 	BOOL ServiceArguments::SetData(DWORD argc, LPTSTR *argv)
 	{
@@ -59,6 +67,10 @@ namespace boost_file_storage
 
 	VOID ServiceArguments::SetDownloadFolder(const std::string *sDownloadFolder)
 	{
+		if (m_sDownloadFolder != NULL)
+		{
+			delete m_sDownloadFolder;
+		}
 		m_sDownloadFolder = sDownloadFolder;
 	}
 
