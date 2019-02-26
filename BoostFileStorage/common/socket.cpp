@@ -10,6 +10,10 @@ namespace boost_file_storage
 	boost::system::error_code socket::get_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
 		boost::system::error_code error;
+		if (buffer == nullptr)
+		{
+			return error;
+		}
 		boost::asio::read(*m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
 	}
@@ -17,6 +21,10 @@ namespace boost_file_storage
 	boost::system::error_code socket::send_data(void *buffer, size_t buffer_size, size_t data_size)
 	{
 		boost::system::error_code error;
+		if (buffer == nullptr)
+		{
+			return error;
+		}
 		boost::asio::write(*m_tcp_socket, boost::asio::buffer(buffer, buffer_size), boost::asio::transfer_exactly(data_size), error);
 		return error;
 	}
