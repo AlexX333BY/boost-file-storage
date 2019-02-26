@@ -24,7 +24,7 @@ namespace boost_file_storage
 				return FALSE;
 			}
 
-			m_sDownloadFolder = std::string(argv[2]);
+			SetDownloadFolder(new std::string(argv[2]));
 
 			endptr = nullptr;
 			ullTemp = strtoull(argv[3], endptr, 0);
@@ -57,12 +57,12 @@ namespace boost_file_storage
 
 	}
 
-	VOID ServiceArguments::SetDownloadFolder(std::string sDownloadFolder)
+	VOID ServiceArguments::SetDownloadFolder(const std::string *sDownloadFolder)
 	{
 		m_sDownloadFolder = sDownloadFolder;
 	}
 
-	std::string ServiceArguments::GetDownloadFolder()
+	const std::string *ServiceArguments::GetDownloadFolder()
 	{
 		return m_sDownloadFolder;
 	}

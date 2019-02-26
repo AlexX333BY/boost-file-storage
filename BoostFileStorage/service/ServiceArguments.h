@@ -10,8 +10,8 @@ namespace boost_file_storage
 		ServiceArguments();
 		BOOL SetData(DWORD dwArgc, LPTSTR *lpszArgv);
 
-		VOID SetDownloadFolder(std::string sDownloadFolder);
-		std::string GetDownloadFolder();
+		VOID SetDownloadFolder(const std::string *sDownloadFolder);
+		const std::string *GetDownloadFolder();
 		VOID SetListenPort(unsigned short usPort);
 		unsigned short GetListenPort();
 		VOID SetSimultaneousDownloadCount(unsigned char ucThreadCount);
@@ -21,7 +21,7 @@ namespace boost_file_storage
 
 		static BYTE GetRequiredArgumentsCount();
 	protected:
-		std::string m_sDownloadFolder;
+		const std::string *m_sDownloadFolder;
 		unsigned short m_usListenPort;
 		unsigned char m_ucThreadCount;
 		size_t m_sFileSize;
