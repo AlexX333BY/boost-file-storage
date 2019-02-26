@@ -19,4 +19,9 @@ namespace boost_file_storage
 			return false;
 		}
 	}
+
+	wxObject* PortValidator::Clone() const
+	{
+		return new PortValidator(*this);
+	}
 }
