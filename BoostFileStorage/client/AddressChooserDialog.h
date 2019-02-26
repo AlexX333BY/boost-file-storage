@@ -15,9 +15,11 @@ namespace boost_file_storage
 			const int h_gap = 5, const int v_gap = 5, const int border = 10);
 		wxIPV4address getAddress();
 	protected:
-		void OnSubmit();
-		void OnCancel();
+		void OnSubmit(wxCommandEvent& event);
+		void OnCancel(wxCommandEvent& event);
 		wxIPV4address address;
 		wxTextCtrl *m_host_control, *m_port_control;
+
+		const wxWindowID submitButtonId = wxID_APPLY, cancelButtonId = wxID_CANCEL;
 	};
 }

@@ -22,8 +22,8 @@ namespace boost_file_storage
 		sizer->Add(new wxStaticText(panel, wxID_ANY, port_hint), 0, wxALIGN_CENTER);
 		sizer->Add(m_port_control, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
-		sizer->Add(new wxButton(panel, wxID_CANCEL, cancel_hint), 1, wxALIGN_CENTER);
-		sizer->Add(new wxButton(panel, wxID_APPLY, submit_hint), 1, wxALIGN_CENTER);
+		sizer->Add(new wxButton(panel, cancelButtonId, cancel_hint), 1, wxALIGN_CENTER);
+		sizer->Add(new wxButton(panel, submitButtonId, submit_hint), 1, wxALIGN_CENTER);
 
 		for (int i = 0; i < row_count; ++i)
 		{
@@ -35,5 +35,52 @@ namespace boost_file_storage
 		boxSizer->Add(sizer, 1, wxALL | wxEXPAND, border);
 
 		panel->SetSizer(boxSizer);
+
+		Bind(wxEVT_BUTTON, &AddressChooserDialog::OnSubmit, this);
+		Bind(wxEVT_BUTTON, &AddressChooserDialog::OnCancel, this);
+	}
+
+	void AddressChooserDialog::OnSubmit(wxCommandEvent& event)
+	{
+		if (event.GetId() == submitButtonId)
+		{
+			if (Validate() && address.Hostname(m_host_control->GetValue()) && address.Service(m_port_control->GetValue()))
+			{
+				if (IsModal())
+					EndModal(wxID_APPLY);
+				else
+				{
+					SetReturnCode(wxID_APPLY);
+					this->Show(false);
+				}
+			}
+		}
+		else
+		{
+			event.Skip();
+		}
+	}
+
+	void AddressChooserDialog::OnCancel(wxCommandEvent& event)
+	{
+		if (event.GetId() == cancelButtonId)
+		{
+			if (IsModal())
+				EndModal(wxID_CANCEL);
+			else
+			{
+				SetReturnCode(wxID_CANCEL);
+				this->Show(false);
+			}
+		}
+		else
+		{
+			event.Skip();
+		}
+	}
+
+	wxIPV4address AddressChooserDialog::getAddress()
+	{
+		return address;
 	}
 }
