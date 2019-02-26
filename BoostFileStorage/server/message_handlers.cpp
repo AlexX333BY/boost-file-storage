@@ -70,7 +70,7 @@ namespace boost_file_storage
 		}
 		
 		socket->send_message(message, error);
-		delete socket;
+		delete message;
 		return error;
 	}
 
