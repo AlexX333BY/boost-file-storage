@@ -4,27 +4,40 @@
 
 namespace boost_file_storage
 {
-	IpValidator::IpValidator(wxString *data) : wxValidator(), m_data(data)
+	IpValidator::IpValidator(wxString *data) : TextCtrlValidator(data)
 	{ }
 
-	bool IpValidator::Validate()
+	bool IpValidator::Validate(wxWindow *)
 	{
-		wxStringTokenizer tokenizer(*m_data, '.');
-		if (tokenizer.CountTokens() == 4)
+		wxWindow *window = GetWindow();
+		if (window->IsKindOf(CLASSINFO(wxTextCtrl)))
 		{
-			unsigned long value;
-			while (tokenizer.HasMoreTokens())
+			wxStringTokenizer tokenizer(((wxTextCtrl *)window)->GetValue(), '.');
+			if (tokenizer.CountTokens() == 4)
 			{
-				if (!tokenizer.GetNextToken().ToULong(&value) || (value > UCHAR_MAX))
+				unsigned long value;
+				while (tokenizer.HasMoreTokens())
 				{
-					return false;
+					if (!tokenizer.GetNextToken().ToULong(&value) || (value > UCHAR_MAX))
+					{
+						return false;
+					}
 				}
+				return true;
 			}
-			return true;
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
 			return false;
 		}
+	}
+
+	wxObject* IpValidator::Clone() const
+	{
+		return new IpValidator(*this);
 	}
 }
