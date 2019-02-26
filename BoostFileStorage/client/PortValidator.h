@@ -4,15 +4,15 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+#include "TextCtrlValidator.h"
 
 namespace boost_file_storage
 {
-	class PortValidator : public wxValidator
+	class PortValidator : public TextCtrlValidator
 	{
 	public:
 		PortValidator(wxString *data);
-		virtual bool Validate();
-	protected:
-		const wxString *m_data;
+		virtual bool Validate(wxWindow *parent);
+		virtual wxObject* Clone() const;
 	};
 }
