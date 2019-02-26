@@ -36,6 +36,9 @@
     <ClCompile Include="AddressChooserDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LogMessagesGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileStorageApp.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddressChooserDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogMessagesGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

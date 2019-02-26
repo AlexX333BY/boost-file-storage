@@ -23,6 +23,7 @@
     <ClCompile Include="FileStorageApp.cpp" />
     <ClCompile Include="FileStorageFrame.cpp" />
     <ClCompile Include="IpValidator.cpp" />
+    <ClCompile Include="LogMessagesGenerator.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PortValidator.cpp" />
     <ClCompile Include="TextCtrlValidator.cpp" />
@@ -32,6 +33,7 @@
     <ClInclude Include="FileStorageApp.h" />
     <ClInclude Include="FileStorageFrame.h" />
     <ClInclude Include="IpValidator.h" />
+    <ClInclude Include="LogMessagesGenerator.h" />
     <ClInclude Include="PortValidator.h" />
     <ClInclude Include="TextCtrlValidator.h" />
   </ItemGroup>
