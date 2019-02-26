@@ -78,6 +78,10 @@ namespace boost_file_storage
 				}
 			}
 		}
+		else
+		{
+			event.Skip();
+		}
 	}
 
 	void FileStorageFrame::OnFolderAdd(wxCommandEvent& event)
@@ -95,6 +99,10 @@ namespace boost_file_storage
 					Log(&m_logGenerator.GenerateAddFileMessage(files[i]));
 				}
 			}
+		}
+		else
+		{
+			event.Skip();
 		}
 	}
 }
