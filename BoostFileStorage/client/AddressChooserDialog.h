@@ -12,14 +12,14 @@ namespace boost_file_storage
 	{
 	public:
 		AddressChooserDialog(wxWindow *parent, wxWindowID id, const wxString &title, 
-			const int h_gap = 5, const int v_gap = 5, const int border = 10);
-		wxIPV4address getAddress();
+			const int hGap = 5, const int vGap = 5, const int border = 10);
+		wxIPV4address GetAddress();
 	protected:
 		void OnSubmit(wxCommandEvent& event);
 		void OnCancel(wxCommandEvent& event);
-		wxIPV4address address;
-		wxTextCtrl *m_host_control, *m_port_control;
+		wxIPV4address m_address;
+		wxTextCtrl *m_ipControl, *m_portControl;
 
-		const wxWindowID submitButtonId = wxID_APPLY, cancelButtonId = wxID_CANCEL;
+		const wxWindowID m_submitButtonId = wxID_APPLY, m_cancelButtonId = wxID_CANCEL;
 	};
 }

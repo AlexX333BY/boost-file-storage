@@ -5,27 +5,27 @@
 namespace boost_file_storage
 {
 	AddressChooserDialog::AddressChooserDialog(wxWindow *parent, wxWindowID id, const wxString &title, 
-		const int h_gap, const int v_gap, const int border)
+		const int hGap, const int vGap, const int border)
 		: wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 	{
-		const int row_count = 3, column_count = 2;
-		const wxString host_hint = "Host:", port_hint = "Port:", submit_hint = "Submit", cancel_hint = "Cancel";
+		const int rowCount = 3, columnCount = 2;
+		const wxString hostHint = "Host:", portHint = "Port:", submitHint = "Submit", cancelHint = "Cancel";
 		
 		wxPanel *panel = new wxPanel(this);
-		m_host_control = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr));
-		m_port_control = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
+		m_ipControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr));
+		m_portControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
 
-		wxFlexGridSizer *sizer = new wxFlexGridSizer(row_count, column_count, v_gap, h_gap);
+		wxFlexGridSizer *sizer = new wxFlexGridSizer(rowCount, columnCount, vGap, hGap);
 		
-		sizer->Add(new wxStaticText(panel, wxID_ANY, host_hint), 0, wxALIGN_CENTER);
-		sizer->Add(m_host_control, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
-		sizer->Add(new wxStaticText(panel, wxID_ANY, port_hint), 0, wxALIGN_CENTER);
-		sizer->Add(m_port_control, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		sizer->Add(new wxStaticText(panel, wxID_ANY, hostHint), 0, wxALIGN_CENTER);
+		sizer->Add(m_ipControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		sizer->Add(new wxStaticText(panel, wxID_ANY, portHint), 0, wxALIGN_CENTER);
+		sizer->Add(m_portControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
-		sizer->Add(new wxButton(panel, cancelButtonId, cancel_hint), 1, wxALIGN_CENTER);
-		sizer->Add(new wxButton(panel, submitButtonId, submit_hint), 1, wxALIGN_CENTER);
+		sizer->Add(new wxButton(panel, m_cancelButtonId, cancelHint), 1, wxALIGN_CENTER);
+		sizer->Add(new wxButton(panel, m_submitButtonId, submitHint), 1, wxALIGN_CENTER);
 
-		for (int i = 0; i < row_count; ++i)
+		for (int i = 0; i < rowCount; ++i)
 		{
 			sizer->AddGrowableRow(i, 1);
 		}
@@ -42,9 +42,9 @@ namespace boost_file_storage
 
 	void AddressChooserDialog::OnSubmit(wxCommandEvent& event)
 	{
-		if (event.GetId() == submitButtonId)
+		if (event.GetId() == m_submitButtonId)
 		{
-			if (Validate() && address.Hostname(m_host_control->GetValue()) && address.Service(m_port_control->GetValue()))
+			if (Validate() && m_address.Hostname(m_ipControl->GetValue()) && m_address.Service(m_portControl->GetValue()))
 			{
 				if (IsModal())
 					EndModal(wxID_APPLY);
@@ -63,7 +63,7 @@ namespace boost_file_storage
 
 	void AddressChooserDialog::OnCancel(wxCommandEvent& event)
 	{
-		if (event.GetId() == cancelButtonId)
+		if (event.GetId() == m_cancelButtonId)
 		{
 			if (IsModal())
 				EndModal(wxID_CANCEL);
@@ -79,8 +79,8 @@ namespace boost_file_storage
 		}
 	}
 
-	wxIPV4address AddressChooserDialog::getAddress()
+	wxIPV4address AddressChooserDialog::GetAddress()
 	{
-		return address;
+		return m_address;
 	}
 }
