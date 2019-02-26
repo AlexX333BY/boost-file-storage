@@ -8,7 +8,7 @@ namespace boost_file_storage
 
 	BOOL ServiceArguments::SetData(DWORD argc, LPTSTR *argv)
 	{
-		if (argc == GetRequiredArgumentsCount())
+		if ((argc == GetRequiredArgumentsCount()) && (argv != NULL))
 		{
 			char **endptr;
 			unsigned long long ullTemp;
@@ -62,7 +62,7 @@ namespace boost_file_storage
 		m_sDownloadFolder = sDownloadFolder;
 	}
 
-	const std::string *ServiceArguments::GetDownloadFolder()
+	const std::string *ServiceArguments::GetDownloadFolder() const
 	{
 		return m_sDownloadFolder;
 	}
@@ -72,7 +72,7 @@ namespace boost_file_storage
 		m_usListenPort = usPort;
 	}
 
-	unsigned short ServiceArguments::GetListenPort()
+	unsigned short ServiceArguments::GetListenPort() const
 	{
 		return m_usListenPort;
 	}
@@ -82,7 +82,7 @@ namespace boost_file_storage
 		m_ucThreadCount = ucThreadCount;
 	}
 
-	unsigned char ServiceArguments::GetSimultaneousDownloadCount()
+	unsigned char ServiceArguments::GetSimultaneousDownloadCount() const
 	{
 		return m_ucThreadCount;
 	}
@@ -92,7 +92,7 @@ namespace boost_file_storage
 		m_sFileSize = sFileSize;
 	}
 
-	size_t ServiceArguments::GetMaxFileSize()
+	size_t ServiceArguments::GetMaxFileSize() const
 	{
 		return m_sFileSize;
 	}
