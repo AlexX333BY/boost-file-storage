@@ -9,7 +9,6 @@ namespace boost_file_storage
 	public:
 		client_socket(size_t desired_buffer_size);
 		~client_socket();
-		bool initialize(size_t desired_buffer_size);
 		boost::system::error_code connect(std::string ip, unsigned short port);
 		virtual bool is_running();
 		virtual boost::system::error_code stop();
