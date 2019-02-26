@@ -48,11 +48,11 @@ namespace boost_file_storage
 		void *data_buffer = nullptr;
 		if ((data_size != 0) && (data_size <= m_buffer_size))
 		{
-			data_buffer = malloc(data_size);
+			data_buffer = new unsigned char[data_size];
 			error = get_data(data_buffer, data_size, data_size);
 			if (error)
 			{
-				free(data_buffer);
+				delete[] data_buffer;
 				return nullptr;
 			}
 		}
@@ -60,7 +60,7 @@ namespace boost_file_storage
 		socket_message *message = new socket_message(type, data_size, data_buffer);
 		if (data_buffer != nullptr)
 		{
-			free(data_buffer);
+			delete[] data_buffer;
 		}
 		return message;
 	}
@@ -91,19 +91,19 @@ namespace boost_file_storage
 	{
 		boost::system::error_code error;
 		size_t cur_bytes_to_read, buffer_size = std::min(bytes_to_skip, m_buffer_size);
-		void *buffer = malloc(buffer_size);
+		void *buffer = new unsigned char[buffer_size];
 		while (bytes_to_skip > 0)
 		{
 			cur_bytes_to_read = std::min(bytes_to_skip, buffer_size);
 			error = get_data(buffer, buffer_size, cur_bytes_to_read);
 			if (error)
 			{
-				free(buffer);
+				delete[] buffer;
 				return error;
 			}
 			bytes_to_skip -= cur_bytes_to_read;
 		}
-		free(buffer);
+		delete[] buffer;
 		return error;
 	}
 

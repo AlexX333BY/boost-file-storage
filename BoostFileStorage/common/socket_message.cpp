@@ -9,7 +9,7 @@ namespace boost_file_storage
 	{
 		if (data_buffer != nullptr)
 		{
-			m_buffer = malloc(m_buffer_length);
+			m_buffer = new unsigned char[m_buffer_length];
 			memcpy_s(m_buffer, m_buffer_length, data_buffer, m_buffer_length);
 		}
 		else
@@ -22,7 +22,7 @@ namespace boost_file_storage
 	{
 		if (m_buffer != nullptr)
 		{
-			free(m_buffer);
+			delete[] m_buffer;
 		}
 	}
 
