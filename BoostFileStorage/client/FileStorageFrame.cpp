@@ -65,6 +65,8 @@ namespace boost_file_storage
 			}
 			delete m_socket;
 		}
+		delete m_fileQueueConditionVariable;
+		delete m_fileQueueMutex;
 	}
 
 	void FileStorageFrame::Log(const wxString *messages, unsigned int count)
@@ -82,11 +84,19 @@ namespace boost_file_storage
 			{
 				wxArrayString paths;
 				fileDialog.GetPaths(paths);
+				
+				m_fileQueueMutex->lock();
+				bool wasEmpty = m_fileQueue.empty();
 				for (size_t i = 0; i < paths.GetCount(); ++i)
 				{
 					m_fileQueue.push(std::experimental::filesystem::path(paths[i].ToStdString()));
 					Log(&m_logGenerator.GenerateAddFileMessage(paths[i]));
 				}
+				if (wasEmpty)
+				{
+					m_fileQueueConditionVariable->notify_one();
+				}
+				m_fileQueueMutex->unlock();
 			}
 		}
 		else
@@ -104,11 +114,18 @@ namespace boost_file_storage
 			{
 				wxArrayString files;
 				wxDir::GetAllFiles(dirDialog.GetPath(), &files, wxEmptyString, wxDIR_FILES | wxDIR_DIRS | wxDIR_NO_FOLLOW);
+				m_fileQueueMutex->lock();
+				bool wasEmpty = m_fileQueue.empty();
 				for (size_t i = 0; i < files.GetCount(); ++i)
 				{
 					m_fileQueue.push(std::experimental::filesystem::path(files[i].ToStdString()));
 					Log(&m_logGenerator.GenerateAddFileMessage(files[i]));
 				}
+				if (wasEmpty)
+				{
+					m_fileQueueConditionVariable->notify_one();
+				}
+				m_fileQueueMutex->unlock();
 			}
 		}
 		else
