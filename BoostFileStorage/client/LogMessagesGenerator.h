@@ -13,5 +13,10 @@ namespace boost_file_storage
 	public:
 		virtual wxString GenerateAddFileMessage(const wxString filePath) const;
 		virtual wxString GenerateConnectAttemptMessage(const wxIPV4address *address) const;
+
+		virtual wxString GenerateConnectingMessage();
+		virtual wxString GenerateDisconnectingMessage();
+		virtual wxString GenerateConnectedMessage();
+		virtual wxString GenerateDisconnectedMessage();
 	};
 }
