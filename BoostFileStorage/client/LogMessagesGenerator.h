@@ -4,6 +4,7 @@
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+#include <wx/socket.h>
 
 namespace boost_file_storage
 {
@@ -11,5 +12,6 @@ namespace boost_file_storage
 	{
 	public:
 		virtual wxString GenerateAddFileMessage(const wxString filePath) const;
+		virtual wxString GenerateConnectAttemptMessage(const wxIPV4address *address) const;
 	};
 }
