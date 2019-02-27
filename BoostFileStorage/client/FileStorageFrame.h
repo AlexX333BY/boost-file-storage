@@ -9,6 +9,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <filesystem>
 #include "../common/client_socket.h"
 #include "LogMessagesGenerator.h"
 #include "ConnectionEvent.h"
@@ -28,7 +29,7 @@ namespace boost_file_storage
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);
 		client_socket *m_socket;
-		std::queue<wxString> m_fileQueue;
+		std::queue<std::experimental::filesystem::path> m_fileQueue;
 		std::mutex *m_fileQueueMutex;
 		std::condition_variable *m_fileQueueConditionVariable;
 
