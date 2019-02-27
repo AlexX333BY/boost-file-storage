@@ -45,6 +45,7 @@ namespace boost_file_storage
 		if (client_message->get_buffer() == nullptr)
 		{
 			message = new socket_message(ERROR_TOO_BIG, 0, nullptr);
+			socket->skip(client_message->get_buffer_length());
 		}
 		else
 		{
