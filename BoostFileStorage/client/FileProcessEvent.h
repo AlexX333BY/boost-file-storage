@@ -16,7 +16,8 @@ namespace boost_file_storage
 		TOO_BIG,
 		SERVER_CHANGED_NAME,
 		SERVER_DISCONNECTED,
-		NO_SPACE
+		NO_SPACE,
+		COMMON_ERROR
 	};
 
 	class FileProcessEvent : public wxEvent

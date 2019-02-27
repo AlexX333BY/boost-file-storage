@@ -27,5 +27,6 @@ namespace boost_file_storage
 		virtual wxString GenerateFileNameChangedMessage(const wxString &filename) const;
 		virtual wxString GenerateServerDisconnectedWhileSendingFileMessage(const wxString &filename) const;
 		virtual wxString GenerateNoSpaceMessage(const wxString &filename) const;
+		virtual wxString GenerateCommonErrorMessage(const wxString &filename) const;
 	};
 }

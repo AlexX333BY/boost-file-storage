@@ -78,4 +78,9 @@ namespace boost_file_storage
 	{
 		return wxString::Format("Server has no space to store %s", filename);
 	}
+
+	wxString LogMessagesGenerator::GenerateCommonErrorMessage(const wxString &filename) const
+	{
+		return wxString::Format("Some server-side error while processing %s", filename);
+	}
 }
