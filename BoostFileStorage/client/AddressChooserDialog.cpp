@@ -8,33 +8,35 @@ namespace boost_file_storage
 		const int hGap, const int vGap, const int border)
 		: wxDialog(parent, id, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 	{
-		const int rowCount = 3, columnCount = 2;
+		const int rowCount = 2, columnCount = 2;
 		const wxString hostHint = "Host:", portHint = "Port:", submitHint = "Submit", cancelHint = "Cancel";
 		
 		wxPanel *panel = new wxPanel(this);
 		m_ipControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr));
 		m_portControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
 
-		wxFlexGridSizer *sizer = new wxFlexGridSizer(rowCount, columnCount, vGap, hGap);
+		wxFlexGridSizer *inputSizer = new wxFlexGridSizer(rowCount, columnCount, vGap, hGap);
 		
-		sizer->Add(new wxStaticText(panel, wxID_ANY, hostHint), 0, wxALIGN_CENTER);
-		sizer->Add(m_ipControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
-		sizer->Add(new wxStaticText(panel, wxID_ANY, portHint), 0, wxALIGN_CENTER);
-		sizer->Add(m_portControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		inputSizer->Add(new wxStaticText(panel, wxID_ANY, hostHint), 0, wxALIGN_CENTER);
+		inputSizer->Add(m_ipControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		inputSizer->Add(new wxStaticText(panel, wxID_ANY, portHint), 0, wxALIGN_CENTER);
+		inputSizer->Add(m_portControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
-		sizer->Add(new wxButton(panel, m_cancelButtonId, cancelHint), 1, wxALIGN_CENTER);
-		sizer->Add(new wxButton(panel, m_submitButtonId, submitHint), 1, wxALIGN_CENTER);
+		wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+		buttonSizer->Add(new wxButton(panel, m_cancelButtonId, cancelHint), 1, wxALIGN_LEFT | wxLEFT | wxRIGHT, hGap);
+		buttonSizer->Add(new wxButton(panel, m_submitButtonId, submitHint), 1, wxALIGN_LEFT | wxLEFT | wxRIGHT, hGap);
 
 		for (int i = 0; i < rowCount; ++i)
 		{
-			sizer->AddGrowableRow(i, 1);
+			inputSizer->AddGrowableRow(i, 1);
 		}
-		sizer->AddGrowableCol(1, 1);
+		inputSizer->AddGrowableCol(1, 1);
 
-		wxBoxSizer *boxSizer = new wxBoxSizer(wxHORIZONTAL);
-		boxSizer->Add(sizer, 1, wxALL | wxEXPAND, border);
+		wxBoxSizer *panelSizer = new wxBoxSizer(wxVERTICAL);
+		panelSizer->Add(inputSizer, 1, wxALL | wxEXPAND, border);
+		panelSizer->Add(buttonSizer, 0, wxALL, border);
 
-		panel->SetSizer(boxSizer);
+		panel->SetSizer(panelSizer);
 
 		Bind(wxEVT_BUTTON, &AddressChooserDialog::OnSubmit, this);
 		Bind(wxEVT_BUTTON, &AddressChooserDialog::OnCancel, this);
