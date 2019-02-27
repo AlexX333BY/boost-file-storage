@@ -73,4 +73,9 @@ namespace boost_file_storage
 	{
 		return wxString::Format("Server disconnected while sending file %s", filename);
 	}
+
+	wxString LogMessagesGenerator::GenerateNoSpaceMessage(const wxString &filename) const
+	{
+		return wxString::Format("Server has no space to store %s", filename);
+	}
 }
