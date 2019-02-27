@@ -7,6 +7,8 @@
 #include <wx/wx.h>
 #endif
 #include <queue>
+#include <mutex>
+#include <condition_variable>
 #include "../common/client_socket.h"
 #include "LogMessagesGenerator.h"
 #include "ConnectionEvent.h"
@@ -18,11 +20,15 @@ namespace boost_file_storage
 	public:
 		FileStorageFrame(const wxString& title, const int border = 5);
 		~FileStorageFrame();
+
+		void NotifySocketConnection(ConnectionStatus status);
 	protected:
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);
 		client_socket *m_socket;
-		std::queue<wxString> m_filesQueue;
+		std::queue<wxString> m_fileQueue;
+		std::mutex *m_fileQueueMutex;
+		std::condition_variable *m_fileQueueConditionVariable;
 
 		wxGauge *m_sendingFileGauge;
 		wxButton *m_connectButton;

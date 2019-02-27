@@ -9,7 +9,8 @@ namespace boost_file_storage
 	const wxString disconnectcCaption = "Disconnect";
 
 	FileStorageFrame::FileStorageFrame(const wxString& title, const int border)
-		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), m_socket(nullptr)
+		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), 
+		m_socket(nullptr), m_fileQueueMutex(new std::mutex()), m_fileQueueConditionVariable(new std::condition_variable())
 	{
 		wxStatusBar *statusBar = CreateStatusBar();
 		wxBoxSizer *statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -81,7 +82,7 @@ namespace boost_file_storage
 				fileDialog.GetPaths(paths);
 				for (size_t i = 0; i < paths.GetCount(); ++i)
 				{
-					m_filesQueue.push(paths[i]);
+					m_fileQueue.push(paths[i]);
 					Log(&m_logGenerator.GenerateAddFileMessage(paths[i]));
 				}
 			}
@@ -103,7 +104,7 @@ namespace boost_file_storage
 				wxDir::GetAllFiles(dirDialog.GetPath(), &files, wxEmptyString, wxDIR_FILES | wxDIR_DIRS | wxDIR_NO_FOLLOW);
 				for (size_t i = 0; i < files.GetCount(); ++i)
 				{
-					m_filesQueue.push(files[i]);
+					m_fileQueue.push(files[i]);
 					Log(&m_logGenerator.GenerateAddFileMessage(files[i]));
 				}
 			}
@@ -165,4 +166,14 @@ namespace boost_file_storage
 		m_connectButton->Enable(false);
 		Log(&m_logGenerator.GenerateDisconnectingMessage());
 	}
+
+	void FileStorageFrame::NotifySocketConnection(ConnectionStatus status)
+	{
+		ConnectionEvent *event = new ConnectionEvent(status, this->GetId(), SOCKET_CONNECTED_EVENT);
+		event->SetEventObject(this);
+		QueueEvent(event);
+	}
+
+	void SocketListeningThread(client_socket *socket, std::queue<wxString> *fileQueue,
+		std::mutex *fileMutex, std::condition_variable *fileConditionVariable, FileStorageFrame *parent);
 }
