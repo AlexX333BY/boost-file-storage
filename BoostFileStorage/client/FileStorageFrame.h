@@ -12,6 +12,7 @@
 #include "../common/client_socket.h"
 #include "LogMessagesGenerator.h"
 #include "ConnectionEvent.h"
+#include "FileProcessEvent.h"
 
 namespace boost_file_storage
 {
@@ -22,6 +23,7 @@ namespace boost_file_storage
 		~FileStorageFrame();
 
 		void NotifySocketConnection(ConnectionStatus status);
+		void NotifyFileProcessed(FileProcessStatus status, const wxString &filename);
 	protected:
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);
@@ -37,6 +39,9 @@ namespace boost_file_storage
 		
 		void OnFileAdd(wxCommandEvent& event);
 		void OnFolderAdd(wxCommandEvent& event);
+		void OnFileProcessSuccess(FileProcessEvent& event);
+		void OnFileProcessFailure(FileProcessEvent& event);
+		void OnFileProcessInfo(FileProcessEvent& event);
 		void OnConnectQuery(wxCommandEvent& event);
 
 		void OnSocketConnected(ConnectionEvent& event);

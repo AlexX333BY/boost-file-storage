@@ -2,7 +2,7 @@
 
 namespace boost_file_storage
 {
-	FileProcessEvent::FileProcessEvent(FileProcessStatus status, wxString filename, int winId = 0, wxEventType eventType = wxEVT_NULL) 
+	FileProcessEvent::FileProcessEvent(FileProcessStatus status, const wxString& filename, int winId, wxEventType eventType)
 		: wxEvent(winId, eventType), m_filename(filename), m_status(status)
 	{ }
 
@@ -11,7 +11,7 @@ namespace boost_file_storage
 		return m_filename;
 	}
 
-	FileProcessStatus FileProcessEvent::GetProcessStatus()
+	FileProcessStatus FileProcessEvent::GetStatus()
 	{
 		return m_status;
 	}

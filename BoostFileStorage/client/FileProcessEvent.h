@@ -14,15 +14,16 @@ namespace boost_file_storage
 		ILLEGAL_ACCESS,
 		SENT,
 		TOO_BIG,
-		SERVER_CHANGED_NAME
+		SERVER_CHANGED_NAME,
+		SERVER_DISCONNECTED
 	};
 
 	class FileProcessEvent : public wxEvent
 	{
 	public:
-		FileProcessEvent(FileProcessStatus status, wxString filename, int winId = 0, wxEventType eventType = wxEVT_NULL);
+		FileProcessEvent(FileProcessStatus status, const wxString& filename, int winId = 0, wxEventType eventType = wxEVT_NULL);
 		wxString GetFilename();
-		FileProcessStatus GetProcessStatus();
+		FileProcessStatus GetStatus();
 		virtual wxEvent *Clone() const;
 	protected:
 		FileProcessStatus m_status;

@@ -122,7 +122,7 @@ namespace boost_file_storage
 			AddressChooserDialog addressDlg(this, wxID_ANY, "Choose connect address");
 			if (addressDlg.ShowModal() == wxID_APPLY)
 			{
-				Log(&m_logGenerator.GenerateConnectAttemptMessage(&addressDlg.GetAddress()));
+				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
 				m_socket = new client_socket(BUFSIZ);
 				/* start thread-socket listener */
 			}
@@ -167,9 +167,108 @@ namespace boost_file_storage
 		Log(&m_logGenerator.GenerateDisconnectingMessage());
 	}
 
+	void FileStorageFrame::OnFileProcessSuccess(FileProcessEvent& event)
+	{
+		wxString message;
+		switch (event.GetStatus())
+		{
+		case SENT:
+			message = m_logGenerator.GenerateFileSentMessage(event.GetFilename);
+			break;
+		default:
+			message = "Unknown success message";
+			break;
+		}
+		Log(&message);
+	}
+
+	void FileStorageFrame::OnFileProcessFailure(FileProcessEvent& event)
+	{
+		wxString message;
+		switch (event.GetStatus())
+		{
+		case FILE_NOT_FOUND:
+			message = m_logGenerator.GenerateFileNotFoundMessage(event.GetFilename());
+			break;
+		case ILLEGAL_ACCESS:
+			message = m_logGenerator.GenerateFileIllegalAccessMessage(event.GetFilename());
+			break;
+		case TOO_BIG:
+			message = m_logGenerator.GenerateFileTooBigMessage(event.GetFilename());
+			break;
+		case SERVER_DISCONNECTED:
+			message = m_logGenerator.GenerateServerDisconnectedWhileSendingFileMessage(event.GetFilename());
+			break;
+		default:
+			message = "Unknown failure message";
+			break;
+		}
+		Log(&message);
+	}
+
+	void FileStorageFrame::OnFileProcessInfo(FileProcessEvent& event)
+	{
+		wxString message;
+		switch (event.GetStatus())
+		{
+		case CONSUMED:
+			message = m_logGenerator.GenerateFileConsumedMessage(event.GetFilename());
+			break;
+		case SERVER_CHANGED_NAME:
+			message = m_logGenerator.GenerateFileNameChangedMessage(event.GetFilename());
+			break;
+		default:
+			message = "Unknown info message";
+			break;
+		}
+		Log(&message);
+	}
+
 	void FileStorageFrame::NotifySocketConnection(ConnectionStatus status)
 	{
-		ConnectionEvent *event = new ConnectionEvent(status, this->GetId(), SOCKET_CONNECTED_EVENT);
+		wxEventTypeTag<ConnectionEvent> tag = wxEVT_NULL;
+		switch (status)
+		{
+		case CONNECTED:
+			tag = SOCKET_CONNECTED_EVENT;
+			break;
+		case DISCONNECTED:
+			tag = SOCKET_DISCONNECTED_EVENT;
+			break;
+		case CONNECTING:
+			tag = SOCKET_CONNECTING_EVENT;
+			break;
+		case DISCONNECTING:
+			tag = SOCKET_DISCONNECTING_EVENT;
+			break;
+		}
+
+		ConnectionEvent *event = new ConnectionEvent(status, this->GetId(), tag);
+		event->SetEventObject(this);
+		QueueEvent(event);
+	}
+
+	void FileStorageFrame::NotifyFileProcessed(FileProcessStatus status, const wxString &filename)
+	{
+		wxEventTypeTag<FileProcessEvent> tag = wxEVT_NULL;
+		switch (status)
+		{
+		case CONSUMED:
+		case SERVER_CHANGED_NAME:
+			tag = FILE_PROCESS_INFO_EVENT;
+			break;
+		case SENT:
+			tag = FILE_PROCESS_SUCCESS_EVENT;
+			break;
+		case FILE_NOT_FOUND:
+		case ILLEGAL_ACCESS:
+		case TOO_BIG:
+		case SERVER_DISCONNECTED:
+			tag = FILE_PROCESS_FAILURE_EVENT;
+			break;
+		}
+
+		FileProcessEvent *event = new FileProcessEvent(status, filename, this->GetId(), tag);
 		event->SetEventObject(this);
 		QueueEvent(event);
 	}
