@@ -27,6 +27,7 @@ namespace boost_file_storage
 		message_type get_message_type();
 		size_t get_buffer_length();
 		void *get_buffer();
+		bool is_error_message();
 	protected:
 		message_type m_message_type;
 		size_t m_buffer_length;

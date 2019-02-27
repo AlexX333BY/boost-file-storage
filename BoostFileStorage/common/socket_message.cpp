@@ -40,4 +40,21 @@ namespace boost_file_storage
 	{
 		return m_buffer;
 	}
+
+	bool socket_message::is_error_message()
+	{
+		bool result;
+		switch (m_message_type)
+		{
+		case ERROR_COMMON:
+		case ERROR_TOO_BIG:
+		case ERROR_NO_SPACE:
+			result = true;
+			break;
+		default:
+			result = false;
+			break;
+		}
+		return result;
+	}
 }
