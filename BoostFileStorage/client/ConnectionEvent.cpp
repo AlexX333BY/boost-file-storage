@@ -2,13 +2,13 @@
 
 namespace boost_file_storage
 {
-	ConnectionEvent::ConnectionEvent(bool isConnected, int winId, wxEventType eventType) 
-		: wxEvent(winId, eventType), m_isConnected(isConnected)
+	ConnectionEvent::ConnectionEvent(ConnectionStatus connectionStatus, int winId, wxEventType eventType)
+		: wxEvent(winId, eventType), m_connectionStatus(connectionStatus)
 	{ }
 
-	bool ConnectionEvent::GetConnectedStatus() const
+	ConnectionStatus ConnectionEvent::GetConnectedStatus() const
 	{
-		return m_isConnected;
+		return m_connectionStatus;
 	}
 
 	wxEvent *ConnectionEvent::Clone() const

@@ -7,14 +7,22 @@
 
 namespace boost_file_storage
 {
+	enum ConnectionStatus
+	{
+		DISCONNECTED,
+		CONNECTING,
+		CONNECTED,
+		DISCONNECTING
+	};
+
 	class ConnectionEvent : public wxEvent
 	{
 	public:
-		ConnectionEvent(bool isConnected, int winId = 0, wxEventType eventType = wxEVT_NULL);
-		bool GetConnectedStatus() const;
+		ConnectionEvent(ConnectionStatus connectionStatus, int winId = 0, wxEventType eventType = wxEVT_NULL);
+		ConnectionStatus GetConnectedStatus() const;
 		virtual wxEvent *Clone() const;
 	protected:
-		const bool m_isConnected;
+		const ConnectionStatus m_connectionStatus;
 	};
 
 	wxDEFINE_EVENT(SOCKET_CONNECTED_EVENT, ConnectionEvent);
