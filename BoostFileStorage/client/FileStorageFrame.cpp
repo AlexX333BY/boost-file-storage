@@ -192,7 +192,7 @@ namespace boost_file_storage
 		switch (event.GetStatus())
 		{
 		case SENT:
-			message = m_logGenerator.GenerateFileSentMessage(event.GetFilename);
+			message = m_logGenerator.GenerateFileSentMessage(event.GetFilename());
 			break;
 		default:
 			message = "Unknown success message";
@@ -300,11 +300,15 @@ namespace boost_file_storage
 		QueueEvent(event);
 	}
 
+	socket_message *QueryFileName(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+	socket_message *SendFile(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename = nullptr);
+
 	void SocketListeningThread(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
 		std::mutex &fileMutex, std::condition_variable *fileConditionVariable, FileStorageFrame *parent)
 	{
 		parent->NotifySocketConnection(CONNECTING);
-		if (!socket->connect(address.IPAddress().ToStdString, address.Service()))
+		if (!socket->connect(address.IPAddress().ToStdString(), address.Service()))
 		{
 			parent->NotifySocketConnection(CONNECTED);
 			std::unique_lock<std::mutex> lock(fileMutex, std::defer_lock);
@@ -416,7 +420,7 @@ namespace boost_file_storage
 		}
 	}
 
-	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename = nullptr)
+	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename)
 	{
 		switch (message->get_message_type())
 		{
