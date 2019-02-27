@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddressChooserDialog.cpp" />
+    <ClCompile Include="ConnectionEvent.cpp" />
     <ClCompile Include="FileStorageApp.cpp" />
     <ClCompile Include="FileStorageFrame.cpp" />
     <ClCompile Include="IpValidator.cpp" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddressChooserDialog.h" />
+    <ClInclude Include="ConnectionEvent.h" />
     <ClInclude Include="FileStorageApp.h" />
     <ClInclude Include="FileStorageFrame.h" />
     <ClInclude Include="IpValidator.h" />

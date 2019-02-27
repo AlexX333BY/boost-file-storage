@@ -27,4 +27,6 @@ namespace boost_file_storage
 
 	wxDEFINE_EVENT(SOCKET_CONNECTED_EVENT, ConnectionEvent);
 	wxDEFINE_EVENT(SOCKET_DISCONNECTED_EVENT, ConnectionEvent);
+	wxDEFINE_EVENT(SOCKET_DISCONNECTING_EVENT, ConnectionEvent);
+	wxDEFINE_EVENT(SOCKET_CONNECTING_EVENT, ConnectionEvent);
 }

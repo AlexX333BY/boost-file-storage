@@ -1,11 +1,12 @@
 #include "FileStorageFrame.h"
 #include "AddressChooserDialog.h"
 #include <wx/dir.h>
+#include <stdio.h>
 
 namespace boost_file_storage
 {
-	const wxString m_connectCaption = "Connect";
-	const wxString m_disconnectcCaption = "Disconnect";
+	const wxString connectCaption = "Connect";
+	const wxString disconnectcCaption = "Disconnect";
 
 	FileStorageFrame::FileStorageFrame(const wxString& title, const int border)
 		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), m_socket(nullptr)
@@ -13,7 +14,8 @@ namespace boost_file_storage
 		wxStatusBar *statusBar = CreateStatusBar();
 		wxBoxSizer *statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
 
-		m_sendingFileGauge = new wxGauge(statusBar, wxID_ANY, 0, wxDefaultPosition, wxSize(statusBar->GetSize().GetWidth() / 10, wxDefaultSize.GetHeight()), wxGA_HORIZONTAL);
+		m_sendingFileGauge = new wxGauge(statusBar, wxID_ANY, 0, wxDefaultPosition, 
+			wxSize(statusBar->GetSize().GetWidth() / 10, wxDefaultSize.GetHeight()), wxGA_HORIZONTAL);
 		m_sendingFileName = new wxStaticText(statusBar, wxID_ANY, wxEmptyString);
 		m_sendingFileGauge->Show(false);
 		m_sendingFileName->Show(false);
@@ -24,7 +26,7 @@ namespace boost_file_storage
 		statusBar->Layout();
 
 		wxPanel *panel = new wxPanel(this);
-		m_connectButton = new wxButton(panel, m_connectButtonId, m_connectCaption);
+		m_connectButton = new wxButton(panel, m_connectButtonId, connectCaption);
 		const wxString addFileCaption = "Add file in queue", addFolderCaption = "Add folder in queue";
 
 		wxBoxSizer *buttonsSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -42,6 +44,12 @@ namespace boost_file_storage
 
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnFileAdd, this);
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnFolderAdd, this);
+		Bind(wxEVT_BUTTON, &FileStorageFrame::OnConnectQuery, this);
+
+		Bind(SOCKET_CONNECTED_EVENT, &FileStorageFrame::OnSocketConnected, this);
+		Bind(SOCKET_DISCONNECTED_EVENT, &FileStorageFrame::OnSocketDisconnected, this);
+		Bind(SOCKET_CONNECTING_EVENT, &FileStorageFrame::OnSocketConnecting, this);
+		Bind(SOCKET_DISCONNECTING_EVENT, &FileStorageFrame::OnSocketDisconnecting, this);
 	}
 
 	FileStorageFrame::~FileStorageFrame()
@@ -104,5 +112,57 @@ namespace boost_file_storage
 		{
 			event.Skip();
 		}
+	}
+
+	void FileStorageFrame::OnConnectQuery(wxCommandEvent& event)
+	{
+		if (event.GetId() == m_connectButtonId)
+		{
+			AddressChooserDialog addressDlg(this, wxID_ANY, "Choose connect address");
+			if (addressDlg.ShowModal() == wxID_APPLY)
+			{
+				Log(&m_logGenerator.GenerateConnectAttemptMessage(&addressDlg.GetAddress()));
+				m_socket = new client_socket(BUFSIZ);
+				/* start thread-socket listener */
+			}
+		}
+		else
+		{
+			event.Skip();
+		}
+	}
+
+	void FileStorageFrame::OnSocketConnected(ConnectionEvent& event)
+	{
+		m_connectButton->SetLabel(disconnectcCaption);
+		m_connectButton->SetId(m_disconnectButtonId);
+		m_connectButton->Enable(true);
+		Log(&m_logGenerator.GenerateConnectedMessage());
+	}
+
+	void FileStorageFrame::OnSocketDisconnected(ConnectionEvent& event)
+	{
+		if (m_socket != nullptr)
+		{
+			delete m_socket;
+			m_socket = nullptr;
+		}
+
+		m_connectButton->SetLabel(connectCaption);
+		m_connectButton->SetId(m_connectButtonId);
+		m_connectButton->Enable(true);
+		Log(&m_logGenerator.GenerateDisconnectedMessage());
+	}
+
+	void FileStorageFrame::OnSocketConnecting(ConnectionEvent& event)
+	{
+		m_connectButton->Enable(false);
+		Log(&m_logGenerator.GenerateConnectingMessage());
+	}
+
+	void FileStorageFrame::OnSocketDisconnecting(ConnectionEvent& event)
+	{
+		m_connectButton->Enable(false);
+		Log(&m_logGenerator.GenerateDisconnectingMessage());
 	}
 }

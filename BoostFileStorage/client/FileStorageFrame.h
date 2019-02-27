@@ -9,6 +9,7 @@
 #include <queue>
 #include "../common/client_socket.h"
 #include "LogMessagesGenerator.h"
+#include "ConnectionEvent.h"
 
 namespace boost_file_storage
 {
@@ -30,7 +31,14 @@ namespace boost_file_storage
 		
 		void OnFileAdd(wxCommandEvent& event);
 		void OnFolderAdd(wxCommandEvent& event);
+		void OnConnectQuery(wxCommandEvent& event);
 
-		const int m_addFileButtonId = wxID_ADD, m_addFolderButtonId = wxID_ADD + 1, m_connectButtonId = wxID_NETWORK;
+		void OnSocketConnected(ConnectionEvent& event);
+		void OnSocketDisconnected(ConnectionEvent& event);
+		void OnSocketConnecting(ConnectionEvent& event);
+		void OnSocketDisconnecting(ConnectionEvent& event);
+
+		const int m_addFileButtonId = wxID_ADD, m_addFolderButtonId = wxID_ADD + 1, 
+			m_connectButtonId = wxID_NETWORK, m_disconnectButtonId = wxID_NETWORK + 1;
 	};
 }
