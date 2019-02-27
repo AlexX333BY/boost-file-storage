@@ -4,7 +4,7 @@ namespace boost_file_storage
 {
 	wxString LogMessagesGenerator::GenerateAddFileMessage(const wxString filePath) const
 	{
-		return "File " + filePath + " added to queue";
+		return wxString::Format("File %s added to queue", filePath);
 	}
 
 	wxString LogMessagesGenerator::GenerateConnectAttemptMessage(const wxIPV4address *address) const
