@@ -22,9 +22,6 @@ namespace boost_file_storage
 	public:
 		FileStorageFrame(const wxString& title, const int border = 5);
 		~FileStorageFrame();
-
-		void NotifySocketConnection(ConnectionStatus status);
-		void NotifyFileProcessed(FileProcessStatus status, const wxString &filename);
 	protected:
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);
@@ -50,6 +47,14 @@ namespace boost_file_storage
 		void OnSocketDisconnected(ConnectionEvent& event);
 		void OnSocketConnecting(ConnectionEvent& event);
 		void OnSocketDisconnecting(ConnectionEvent& event);
+
+		void NotifySocketConnection(ConnectionStatus status);
+		void NotifyFileProcessed(FileProcessStatus status, const wxString &filename);
+
+		void SocketListeningThreadRoutine(wxIPV4address address);
+		socket_message *QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+		socket_message *SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+		void SendMessageResultNotification(socket_message *message, std::string *filename = nullptr);
 
 		const int m_addFileButtonId = wxID_ADD, m_addFolderButtonId = wxID_ADD + 1, 
 			m_connectButtonId = wxID_NETWORK, m_disconnectButtonId = wxID_NETWORK + 1;

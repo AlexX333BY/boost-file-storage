@@ -10,9 +10,6 @@ namespace boost_file_storage
 	const wxString connectCaption = "Connect";
 	const wxString disconnectcCaption = "Disconnect";
 
-	void SocketListeningThreadRoutine(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
-		std::mutex &fileMutex, std::condition_variable &fileConditionVariable, FileStorageFrame *parent);
-
 	FileStorageFrame::FileStorageFrame(const wxString& title, const int border)
 		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), 
 		m_socket(nullptr), m_socket_thread(nullptr)
@@ -152,8 +149,7 @@ namespace boost_file_storage
 			{
 				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
 				m_socket = new client_socket(BUFSIZ);
-				m_socket_thread = new std::thread(SocketListeningThreadRoutine, m_socket, addressDlg.GetAddress(), 
-					m_fileQueue, m_fileQueueMutex, m_fileQueueConditionVariable, this);
+				m_socket_thread = new std::thread(&FileStorageFrame::SocketListeningThreadRoutine, this, addressDlg.GetAddress());
 			}
 		}
 		else
@@ -319,69 +315,64 @@ namespace boost_file_storage
 		QueueEvent(event);
 	}
 
-	socket_message *QueryFileName(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error);
-	socket_message *SendFile(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error);
-	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename = nullptr);
-
-	void SocketListeningThreadRoutine(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
-		std::mutex &fileMutex, std::condition_variable &fileConditionVariable, FileStorageFrame *parent)
+	void FileStorageFrame::SocketListeningThreadRoutine(wxIPV4address address)
 	{
-		parent->NotifySocketConnection(CONNECTING);
-		if (!socket->connect(address.IPAddress().ToStdString(), address.Service()))
+		NotifySocketConnection(CONNECTING);
+		if (!m_socket->connect(address.IPAddress().ToStdString(), address.Service()))
 		{
-			parent->NotifySocketConnection(CONNECTED);
-			std::unique_lock<std::mutex> lock(fileMutex, std::defer_lock);
+			NotifySocketConnection(CONNECTED);
+			std::unique_lock<std::mutex> lock(m_fileQueueMutex, std::defer_lock);
 			std::experimental::filesystem::path processFilePath;
 			socket_message *message = nullptr;
 			boost::system::error_code error;
 			
-			while (socket->is_running())
+			while (m_socket->is_running())
 			{
 				lock.lock();
-				while (fileQueue.empty() && socket->is_running())
+				while (m_fileQueue.empty() && m_socket->is_running())
 				{
-					fileConditionVariable.wait(lock);
+					m_fileQueueConditionVariable.wait(lock);
 				}
-				if (socket->is_running())
+				if (m_socket->is_running())
 				{
-					processFilePath = fileQueue.front();
-					fileQueue.pop();
+					processFilePath = m_fileQueue.front();
+					m_fileQueue.pop();
 					lock.unlock();
-					parent->NotifyFileProcessed(CONSUMED, processFilePath.string());
+					NotifyFileProcessed(CONSUMED, processFilePath.string());
 
 					error.clear();
-					message = QueryFileName(socket, processFilePath, error);
+					message = QueryFileName(processFilePath, error);
 					if (!error)
 					{
-						SendMessageResultNotification(message, parent, &processFilePath.string());
+						SendMessageResultNotification(message, &processFilePath.string());
 						if (!message->is_error_message())
 						{
 							delete message;
 							error.clear();
-							message = SendFile(socket, processFilePath, error);
+							message = SendFile(processFilePath, error);
 							if (!error)
 							{
 								if (message != nullptr)
 								{
-									SendMessageResultNotification(message, parent, &processFilePath.string());
+									SendMessageResultNotification(message, &processFilePath.string());
 									delete message;
 								}
 								else
 								{
-									parent->NotifyFileProcessed(ILLEGAL_ACCESS, processFilePath.string());
+									NotifyFileProcessed(ILLEGAL_ACCESS, processFilePath.string());
 								}
 							}
 							else
 							{
-								parent->NotifySocketConnection(DISCONNECTING);
-								socket->stop();
+								NotifySocketConnection(DISCONNECTING);
+								m_socket->stop();
 							}
 						}
 					}
 					else
 					{
-						parent->NotifySocketConnection(DISCONNECTING);
-						socket->stop();
+						NotifySocketConnection(DISCONNECTING);
+						m_socket->stop();
 					}
 				}
 				else
@@ -390,17 +381,17 @@ namespace boost_file_storage
 				}
 			}
 		}
-		parent->NotifySocketConnection(DISCONNECTED);
+		NotifySocketConnection(DISCONNECTED);
 	}
 
-	socket_message *QueryFileName(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error)
+	socket_message *FileStorageFrame::QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error)
 	{
 		std::experimental::filesystem::path processFileName = filePath.filename();
 		socket_message message(UPLOAD_FILE_QUERY, processFileName.string().length(), processFileName.string().c_str());
-		socket->send_message(&message, error);
+		m_socket->send_message(&message, error);
 		if (!error)
 		{
-			return socket->get_message(error);
+			return m_socket->get_message(error);
 		}
 		else
 		{
@@ -408,7 +399,7 @@ namespace boost_file_storage
 		}
 	}
 
-	socket_message *SendFile(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error)
+	socket_message *FileStorageFrame::SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error)
 	{
 		boost::iostreams::mapped_file file;
 		boost::iostreams::mapped_file_params params;
@@ -423,10 +414,10 @@ namespace boost_file_storage
 		if (file.is_open())
 		{
 			socket_message message(FILE, file.size(), file.data());
-			socket->send_message(&message, error);
+			m_socket->send_message(&message, error);
 			if (!error)
 			{
-				return socket->get_message(error);
+				return m_socket->get_message(error);
 			}
 			else
 			{
@@ -439,26 +430,26 @@ namespace boost_file_storage
 		}
 	}
 
-	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename)
+	void FileStorageFrame::SendMessageResultNotification(socket_message *message, std::string *filename)
 	{
 		switch (message->get_message_type())
 		{
 		case ERROR_TOO_BIG:
 			if (filename != nullptr)
 			{
-				frame->NotifyFileProcessed(TOO_BIG, *filename);
+				NotifyFileProcessed(TOO_BIG, *filename);
 			}
 			break;
 		case ERROR_NO_SPACE:
 			if (filename != nullptr)
 			{
-				frame->NotifyFileProcessed(NO_SPACE, *filename);
+				NotifyFileProcessed(NO_SPACE, *filename);
 			}
 			break;
 		case WARNING_NAME_EXISTS:
 			if (filename != nullptr)
 			{
-				frame->NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", &filename,
+				NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", &filename,
 					wxString((char *)message->get_buffer(), message->get_buffer_length())));
 			}
 			break;
