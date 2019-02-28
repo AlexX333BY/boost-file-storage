@@ -58,26 +58,28 @@ namespace boost_file_storage
 		Bind(FILE_PROCESS_FAILURE_EVENT, &FileStorageFrame::OnFileProcessFailure, this);
 		Bind(FILE_PROCESS_INFO_EVENT, &FileStorageFrame::OnFileProcessInfo, this);
 		Bind(FILE_PROCESS_SUCCESS_EVENT, &FileStorageFrame::OnFileProcessSuccess, this);
+
+		m_socket = new client_socket(BUFSIZ);
 	}
 
 	FileStorageFrame::~FileStorageFrame()
 	{
-		if (m_socket != nullptr)
+		if (!m_socket->is_closed())
 		{
-			if (!m_socket->is_closed())
-			{
-				m_socket->close();
-			}
-			delete m_socket;
+			m_socket->close();
 		}
+
 		if (m_socket_thread != nullptr)
 		{
+			m_fileQueueConditionVariable.notify_one();
 			if (m_socket_thread->joinable())
 			{
 				m_socket_thread->join();
 			}
 			delete m_socket_thread;
 		}
+
+		delete m_socket;
 	}
 
 	void FileStorageFrame::Log(const wxString *messages, unsigned int count)
@@ -153,8 +155,6 @@ namespace boost_file_storage
 			if (addressDlg.ShowModal() == wxID_APPLY)
 			{
 				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
-				m_socket = new client_socket(BUFSIZ);
-				m_socket->open();
 				m_socket_thread = new std::thread(&FileStorageFrame::SocketListeningRoutine, this, addressDlg.GetAddress());
 			}
 		}
@@ -169,6 +169,7 @@ namespace boost_file_storage
 		if (event.GetId() == m_disconnectButtonId)
 		{
 			m_socket->close();
+			m_fileQueueConditionVariable.notify_one();
 		}
 		else
 		{
@@ -186,11 +187,6 @@ namespace boost_file_storage
 
 	void FileStorageFrame::OnSocketDisconnected(ConnectionEvent& event)
 	{
-		if (m_socket != nullptr)
-		{
-			delete m_socket;
-			m_socket = nullptr;
-		}
 		if (m_socket_thread != nullptr)
 		{
 			if (m_socket_thread->joinable())
@@ -336,7 +332,7 @@ namespace boost_file_storage
 	void FileStorageFrame::SocketListeningRoutine(wxIPV4address address)
 	{
 		NotifySocketConnection(STATUS_CONNECTING);
-		if (!m_socket->connect(address.IPAddress().ToStdString(), address.Service()))
+		if (!m_socket->open() && !m_socket->connect(address.IPAddress().ToStdString(), address.Service()))
 		{
 			NotifySocketConnection(STATUS_CONNECTED);
 			std::unique_lock<std::mutex> lock(m_fileQueueMutex, std::defer_lock);

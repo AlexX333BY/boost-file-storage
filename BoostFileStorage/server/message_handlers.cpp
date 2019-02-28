@@ -56,7 +56,7 @@ namespace boost_file_storage
 				std::error_code error;
 				if (std::experimental::filesystem::create_directories(absolute_path.parent_path(), error) || !error)
 				{
-					std::ofstream file(absolute_path.c_str());
+					std::ofstream file(absolute_path.c_str(), std::ios::out | std::ios::binary);
 					file.write((char *)client_message->get_buffer(), client_message->get_buffer_length());
 					file.close();
 					message = new socket_message(OK, 0, nullptr);
