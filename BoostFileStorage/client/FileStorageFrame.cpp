@@ -48,6 +48,7 @@ namespace boost_file_storage
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnFileAdd, this);
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnFolderAdd, this);
 		Bind(wxEVT_BUTTON, &FileStorageFrame::OnConnectQuery, this);
+		Bind(wxEVT_BUTTON, &FileStorageFrame::OnDisconnectQuery, this);
 
 		Bind(SOCKET_CONNECTED_EVENT, &FileStorageFrame::OnSocketConnected, this);
 		Bind(SOCKET_DISCONNECTED_EVENT, &FileStorageFrame::OnSocketDisconnected, this);
@@ -63,9 +64,9 @@ namespace boost_file_storage
 	{
 		if (m_socket != nullptr)
 		{
-			if (m_socket->is_running())
+			if (!m_socket->is_closed())
 			{
-				m_socket->stop();
+				m_socket->close();
 			}
 			delete m_socket;
 		}
@@ -153,8 +154,21 @@ namespace boost_file_storage
 			{
 				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
 				m_socket = new client_socket(BUFSIZ);
-				m_socket_thread = new std::thread(&FileStorageFrame::SocketListeningThreadRoutine, this, addressDlg.GetAddress());
+				m_socket->open();
+				m_socket_thread = new std::thread(&FileStorageFrame::SocketListeningRoutine, this, addressDlg.GetAddress());
 			}
+		}
+		else
+		{
+			event.Skip();
+		}
+	}
+
+	void FileStorageFrame::OnDisconnectQuery(wxCommandEvent &event)
+	{
+		if (event.GetId() == m_disconnectButtonId)
+		{
+			m_socket->close();
 		}
 		else
 		{
@@ -273,16 +287,16 @@ namespace boost_file_storage
 		wxEventTypeTag<ConnectionEvent> tag = wxEVT_NULL;
 		switch (status)
 		{
-		case CONNECTED:
+		case STATUS_CONNECTED:
 			tag = SOCKET_CONNECTED_EVENT;
 			break;
-		case DISCONNECTED:
+		case STATUS_DISCONNECTED:
 			tag = SOCKET_DISCONNECTED_EVENT;
 			break;
-		case CONNECTING:
+		case STATUS_CONNECTING:
 			tag = SOCKET_CONNECTING_EVENT;
 			break;
-		case DISCONNECTING:
+		case STATUS_DISCONNECTING:
 			tag = SOCKET_DISCONNECTING_EVENT;
 			break;
 		}
@@ -319,25 +333,25 @@ namespace boost_file_storage
 		QueueEvent(event);
 	}
 
-	void FileStorageFrame::SocketListeningThreadRoutine(wxIPV4address address)
+	void FileStorageFrame::SocketListeningRoutine(wxIPV4address address)
 	{
-		NotifySocketConnection(CONNECTING);
+		NotifySocketConnection(STATUS_CONNECTING);
 		if (!m_socket->connect(address.IPAddress().ToStdString(), address.Service()))
 		{
-			NotifySocketConnection(CONNECTED);
+			NotifySocketConnection(STATUS_CONNECTED);
 			std::unique_lock<std::mutex> lock(m_fileQueueMutex, std::defer_lock);
 			std::experimental::filesystem::path processFilePath;
 			socket_message *message = nullptr;
 			boost::system::error_code error;
 			
-			while (m_socket->is_running())
+			while (m_socket->is_connected())
 			{
 				lock.lock();
-				while (m_fileQueue.empty() && m_socket->is_running())
+				while (m_fileQueue.empty() && !m_socket->is_closed())
 				{
 					m_fileQueueConditionVariable.wait(lock);
 				}
-				if (m_socket->is_running())
+				if (!m_socket->is_closed())
 				{
 					processFilePath = m_fileQueue.front();
 					m_fileQueue.pop();
@@ -368,15 +382,15 @@ namespace boost_file_storage
 							}
 							else
 							{
-								NotifySocketConnection(DISCONNECTING);
-								m_socket->stop();
+								NotifySocketConnection(STATUS_DISCONNECTING);
+								m_socket->close();
 							}
 						}
 					}
 					else
 					{
-						NotifySocketConnection(DISCONNECTING);
-						m_socket->stop();
+						NotifySocketConnection(STATUS_DISCONNECTING);
+						m_socket->close();
 					}
 				}
 				else
@@ -385,7 +399,7 @@ namespace boost_file_storage
 				}
 			}
 		}
-		NotifySocketConnection(DISCONNECTED);
+		NotifySocketConnection(STATUS_DISCONNECTED);
 	}
 
 	socket_message *FileStorageFrame::QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error)

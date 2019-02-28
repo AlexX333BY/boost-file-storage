@@ -9,10 +9,10 @@ namespace boost_file_storage
 {
 	enum ConnectionStatus
 	{
-		DISCONNECTED,
-		CONNECTING,
-		CONNECTED,
-		DISCONNECTING
+		STATUS_DISCONNECTED,
+		STATUS_CONNECTING,
+		STATUS_CONNECTED,
+		STATUS_DISCONNECTING
 	};
 
 	class ConnectionEvent : public wxEvent

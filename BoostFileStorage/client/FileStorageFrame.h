@@ -36,22 +36,23 @@ namespace boost_file_storage
 		wxListBox *m_log;
 		wxStaticText *m_sendingFileName;
 		
-		void OnFileAdd(wxCommandEvent& event);
-		void OnFolderAdd(wxCommandEvent& event);
-		void OnFileProcessSuccess(FileProcessEvent& event);
-		void OnFileProcessFailure(FileProcessEvent& event);
-		void OnFileProcessInfo(FileProcessEvent& event);
-		void OnConnectQuery(wxCommandEvent& event);
+		void OnFileAdd(wxCommandEvent &event);
+		void OnFolderAdd(wxCommandEvent &event);
+		void OnConnectQuery(wxCommandEvent &event);
+		void OnDisconnectQuery(wxCommandEvent &event);
 
-		void OnSocketConnected(ConnectionEvent& event);
-		void OnSocketDisconnected(ConnectionEvent& event);
-		void OnSocketConnecting(ConnectionEvent& event);
-		void OnSocketDisconnecting(ConnectionEvent& event);
+		void OnFileProcessSuccess(FileProcessEvent &event);
+		void OnFileProcessFailure(FileProcessEvent &event);
+		void OnFileProcessInfo(FileProcessEvent &event);
+		void OnSocketConnected(ConnectionEvent &event);
+		void OnSocketDisconnected(ConnectionEvent &event);
+		void OnSocketConnecting(ConnectionEvent &event);
+		void OnSocketDisconnecting(ConnectionEvent &event);
 
 		void NotifySocketConnection(ConnectionStatus status);
 		void NotifyFileProcessed(FileProcessStatus status, const wxString &filename);
 
-		void SocketListeningThreadRoutine(wxIPV4address address);
+		void SocketListeningRoutine(wxIPV4address address);
 		socket_message *QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
 		socket_message *SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
 		void SendMessageResultNotification(socket_message *message, std::string *filename = nullptr);
