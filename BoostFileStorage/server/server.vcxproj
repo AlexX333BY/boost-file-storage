@@ -79,7 +79,7 @@
       <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
       <LanguageStandard>
       </LanguageStandard>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0600</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib</AdditionalLibraryDirectories>
@@ -118,7 +118,7 @@
       <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
       <LanguageStandard>
       </LanguageStandard>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0600</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
