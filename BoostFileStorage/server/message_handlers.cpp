@@ -52,7 +52,8 @@ namespace boost_file_storage
 			std::experimental::filesystem::path absolute_path = *download_folder / *file_path;
 			if (std::experimental::filesystem::space(absolute_path).available >= client_message->get_buffer_length())
 			{
-				if (std::experimental::filesystem::create_directories(absolute_path.parent_path()))
+				std::error_code error;
+				if (std::experimental::filesystem::create_directories(absolute_path.parent_path(), error) || !error)
 				{
 					std::ofstream file(absolute_path.c_str());
 					file.write((char *)client_message->get_buffer(), client_message->get_buffer_length());

@@ -59,6 +59,7 @@ namespace boost_file_storage
 			}
 			delete m_tcp_socket;
 			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+			m_is_running = false;
 			return error;
 		}
 		return error;

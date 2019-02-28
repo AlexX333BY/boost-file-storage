@@ -53,6 +53,10 @@ namespace boost_file_storage
 		Bind(SOCKET_DISCONNECTED_EVENT, &FileStorageFrame::OnSocketDisconnected, this);
 		Bind(SOCKET_CONNECTING_EVENT, &FileStorageFrame::OnSocketConnecting, this);
 		Bind(SOCKET_DISCONNECTING_EVENT, &FileStorageFrame::OnSocketDisconnecting, this);
+
+		Bind(FILE_PROCESS_FAILURE_EVENT, &FileStorageFrame::OnFileProcessFailure, this);
+		Bind(FILE_PROCESS_INFO_EVENT, &FileStorageFrame::OnFileProcessInfo, this);
+		Bind(FILE_PROCESS_SUCCESS_EVENT, &FileStorageFrame::OnFileProcessSuccess, this);
 	}
 
 	FileStorageFrame::~FileStorageFrame()
@@ -402,18 +406,11 @@ namespace boost_file_storage
 	socket_message *FileStorageFrame::SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error)
 	{
 		boost::iostreams::mapped_file file;
-		boost::iostreams::mapped_file_params params;
-		params.flags = boost::iostreams::mapped_file::mapmode::readonly;
-		params.hint = nullptr;
-		params.length = 0;
-		params.mode = 0;
-		params.new_file_size = 0;
-		params.offset = 0;
-		params.path = filePath.string();
-		file.open(params);
+		file.open(filePath.string(), boost::iostreams::mapped_file::mapmode::readonly);
+		size_t size = file.size();
 		if (file.is_open())
 		{
-			socket_message message(FILE, file.size(), file.data());
+			socket_message message(FILE, file.size(), file.const_data());
 			m_socket->send_message(&message, error);
 			if (!error)
 			{

@@ -8,7 +8,7 @@ int main()
 {
 	const unsigned short dbg_port = 8080;
 	const std::string dbg_download_dir = "C:\\Users\\user\\Downloads";
-	const size_t dbg_max_file_size = 70000;
+	const size_t dbg_max_file_size = 65536;
 	const unsigned char dbg_threads = 16;
 
 	server *s = new server();
@@ -17,14 +17,15 @@ int main()
 	if (is_initialized) {
 		bool is_started = s->start();
 		printf("Is server started? %s\n", is_started ? "TRUE" : "FALSE");
-		if (is_started)
+		/*if (is_started)
 		{
 			bool is_stopped = s->stop();
 			printf("Is server stopped? %s\n", is_stopped ? "TRUE" : "FALSE");
-		}
+		}*/
 	}
-	delete s;
+	
 	system("pause");
+	delete s;
 	return 0;
 }
 #else

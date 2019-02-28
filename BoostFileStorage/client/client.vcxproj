@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(BOOST_ROOT);$(wxwin)/include/msvc;$(wxwin)/include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);WXUSINGDLL;wxMSVC_VERSION_AUTO</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);WXUSINGDLL;wxMSVC_VERSION_AUTO;_UNICODE;UNICODE</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

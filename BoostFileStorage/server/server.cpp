@@ -42,7 +42,6 @@ namespace boost_file_storage
 					handlers.at(client_message->get_message_type())(client_message, socket, download_folder, &save_file_path);
 					if (client_message->get_message_type() == DISCONNECT)
 					{
-						socket->stop();
 						is_client_connected = false;
 					}
 					delete client_message;
