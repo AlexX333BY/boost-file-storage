@@ -25,7 +25,7 @@ namespace boost_file_storage
 			result_path = client_file_path;
 			for (int i = 0; std::experimental::filesystem::exists(*download_folder / result_path); ++i)
 			{
-				result_path = client_file_path.stem() / std::to_string(i) / client_file_path.extension();
+				result_path = ((client_file_path.stem() += std::to_string(i)) += client_file_path.extension());
 			}
 
 			std::string string_filename = result_path.string();

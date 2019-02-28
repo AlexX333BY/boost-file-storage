@@ -446,7 +446,7 @@ namespace boost_file_storage
 		case WARNING_NAME_EXISTS:
 			if (filename != nullptr)
 			{
-				NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", &filename,
+				NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", *filename,
 					wxString((char *)message->get_buffer(), message->get_buffer_length())));
 			}
 			break;
