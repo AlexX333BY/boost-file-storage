@@ -29,7 +29,7 @@ namespace boost_file_storage
 		return error;
 	}
 
-	socket_message *socket::get_message(boost::system::error_code error)
+	socket_message *socket::get_message(boost::system::error_code &error)
 	{
 		message_type type;
 		error = get_data(&type, sizeof(message_type), sizeof(message_type));
@@ -65,7 +65,7 @@ namespace boost_file_storage
 		return message;
 	}
 
-	void socket::send_message(socket_message *message, boost::system::error_code error)
+	void socket::send_message(socket_message *message, boost::system::error_code &error)
 	{
 		message_type type = message->get_message_type();
 		void *data = message->get_buffer();
