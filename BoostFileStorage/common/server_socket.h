@@ -1,15 +1,9 @@
 #pragma once
 #include "socket.h"
+#include "socket_state.h"
 
 namespace boost_file_storage
 {
-	enum server_socket_state
-	{
-		OPENED,
-		CONNECTED,
-		CLOSED
-	};
-
 	class server_socket : public socket
 	{
 	public:
@@ -21,7 +15,7 @@ namespace boost_file_storage
 		bool is_connected();
 		virtual boost::system::error_code stop();
 	protected:
-		server_socket_state m_state;
+		socket_state m_state;
 		boost::asio::ip::tcp::acceptor *m_acceptor;
 		boost::asio::io_context *m_context;
 		boost::system::error_code m_accept_error;
