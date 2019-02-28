@@ -53,6 +53,7 @@ namespace boost_file_storage
 				}
 			}
 		}
+		printf("exited\n");
 	}
 
 	void server::clear_sockets()
@@ -149,13 +150,13 @@ namespace boost_file_storage
 					(*it)->stop();
 				}
 			}
-			clear_sockets();
 
 			for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
 			{
 				(*it)->join();
 			}
 			clear_threads();
+			clear_sockets();
 
 			m_state = UNINITIALIZED;
 			return true;
