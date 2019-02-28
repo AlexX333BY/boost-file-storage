@@ -14,6 +14,7 @@
 #include "LogMessagesGenerator.h"
 #include "ConnectionEvent.h"
 #include "FileProcessEvent.h"
+#include "StatusBarUpdateEvent.h"
 
 namespace boost_file_storage
 {
@@ -35,6 +36,7 @@ namespace boost_file_storage
 		wxButton *m_connectButton;
 		wxListBox *m_log;
 		wxStaticText *m_sendingFileName;
+		wxBoxSizer *m_statusBarSizer;
 		
 		void OnFileAdd(wxCommandEvent &event);
 		void OnFolderAdd(wxCommandEvent &event);
@@ -48,9 +50,11 @@ namespace boost_file_storage
 		void OnSocketDisconnected(ConnectionEvent &event);
 		void OnSocketConnecting(ConnectionEvent &event);
 		void OnSocketDisconnecting(ConnectionEvent &event);
+		void OnStatusBarUpdate(StatusBarUpdateEvent &event);
 
 		void NotifySocketConnection(ConnectionStatus status);
 		void NotifyFileProcessed(FileProcessStatus status, const wxString &filename);
+		void NotifyStatusBarUpdate(int valueUpdate, int rangeUpdate = 0, const wxString &filename = "");
 
 		void SocketListeningRoutine(wxIPV4address address);
 		socket_message *QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);

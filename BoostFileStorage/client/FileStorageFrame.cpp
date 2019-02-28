@@ -15,18 +15,17 @@ namespace boost_file_storage
 		m_socket(nullptr), m_socket_thread(nullptr)
 	{
 		wxStatusBar *statusBar = CreateStatusBar();
-		wxBoxSizer *statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
+		m_statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
 
 		m_sendingFileGauge = new wxGauge(statusBar, wxID_ANY, 0, wxDefaultPosition, 
 			wxSize(statusBar->GetSize().GetWidth() / 10, wxDefaultSize.GetHeight()), wxGA_HORIZONTAL);
+		m_sendingFileGauge->SetValue(0);
 		m_sendingFileName = new wxStaticText(statusBar, wxID_ANY, wxEmptyString);
-		m_sendingFileGauge->Show(false);
-		m_sendingFileName->Show(false);
-
-		statusBarSizer->Add(m_sendingFileGauge, 1, wxEXPAND | wxALIGN_LEFT | wxALL, border);
-		statusBarSizer->Add(m_sendingFileName, 4, wxEXPAND | wxALIGN_LEFT | wxALL, border);
-		statusBar->SetSizer(statusBarSizer);
-		statusBar->Layout();
+		
+		m_statusBarSizer->Add(m_sendingFileGauge, 1, wxEXPAND | wxALIGN_LEFT | wxALL, border);
+		m_statusBarSizer->Add(m_sendingFileName, 4, wxEXPAND | wxALL, border);
+		statusBar->SetSizer(m_statusBarSizer);
+		m_statusBarSizer->Show(false);
 
 		wxPanel *panel = new wxPanel(this);
 		m_connectButton = new wxButton(panel, m_connectButtonId, connectCaption);
@@ -58,6 +57,8 @@ namespace boost_file_storage
 		Bind(FILE_PROCESS_FAILURE_EVENT, &FileStorageFrame::OnFileProcessFailure, this);
 		Bind(FILE_PROCESS_INFO_EVENT, &FileStorageFrame::OnFileProcessInfo, this);
 		Bind(FILE_PROCESS_SUCCESS_EVENT, &FileStorageFrame::OnFileProcessSuccess, this);
+
+		Bind(GAUGE_UPDATE_EVENT, &FileStorageFrame::OnStatusBarUpdate, this);
 
 		m_socket = new client_socket(BUFSIZ);
 	}
@@ -110,6 +111,7 @@ namespace boost_file_storage
 					m_fileQueueConditionVariable.notify_one();
 				}
 				m_fileQueueMutex.unlock();
+				NotifyStatusBarUpdate(0, paths.GetCount());
 			}
 		}
 		else
@@ -139,6 +141,7 @@ namespace boost_file_storage
 					m_fileQueueConditionVariable.notify_one();
 				}
 				m_fileQueueMutex.unlock();
+				NotifyStatusBarUpdate(0, files.GetCount());
 			}
 		}
 		else
@@ -212,6 +215,10 @@ namespace boost_file_storage
 	void FileStorageFrame::OnSocketDisconnecting(ConnectionEvent& event)
 	{
 		m_connectButton->Enable(false);
+		m_statusBarSizer->Show(false);
+		m_sendingFileGauge->SetValue(0);
+		m_sendingFileGauge->SetRange(m_fileQueue.size());
+		m_sendingFileName->SetLabel("");
 		Log(&m_logGenerator.GenerateDisconnectingMessage());
 	}
 
@@ -267,6 +274,8 @@ namespace boost_file_storage
 		{
 		case CONSUMED:
 			message = m_logGenerator.GenerateFileConsumedMessage(event.GetFilename());
+			m_statusBarSizer->Show(true);
+			m_statusBarSizer->Layout();
 			break;
 		case SERVER_CHANGED_NAME:
 			message = m_logGenerator.GenerateFileNameChangedMessage(event.GetFilename());
@@ -276,6 +285,27 @@ namespace boost_file_storage
 			break;
 		}
 		Log(&message);
+	}
+
+	void FileStorageFrame::OnStatusBarUpdate(StatusBarUpdateEvent &event)
+	{
+		int newValue = m_sendingFileGauge->GetValue() + event.GetValueIncrement(),
+			newRange = m_sendingFileGauge->GetRange() + event.GetRangeIncrement();
+
+		if (newValue >= newRange)
+		{
+			m_sendingFileGauge->SetValue(0);
+			m_sendingFileGauge->SetRange(0);
+			m_sendingFileName->SetLabel("");
+			m_statusBarSizer->Show(false);
+		}
+		else
+		{
+			m_sendingFileGauge->SetValue(newValue);
+			m_sendingFileGauge->SetRange(newRange);
+		}
+
+		m_sendingFileName->SetLabel(event.GetFilename());
 	}
 
 	void FileStorageFrame::NotifySocketConnection(ConnectionStatus status)
@@ -329,6 +359,13 @@ namespace boost_file_storage
 		QueueEvent(event);
 	}
 
+	void FileStorageFrame::NotifyStatusBarUpdate(int valueUpdate, int rangeUpdate, const wxString &filename)
+	{
+		StatusBarUpdateEvent *event = new StatusBarUpdateEvent(valueUpdate, rangeUpdate, filename, this->GetId(), GAUGE_UPDATE_EVENT);
+		event->SetEventObject(this);
+		QueueEvent(event);
+	}
+
 	void FileStorageFrame::SocketListeningRoutine(wxIPV4address address)
 	{
 		NotifySocketConnection(STATUS_CONNECTING);
@@ -353,6 +390,7 @@ namespace boost_file_storage
 					m_fileQueue.pop();
 					lock.unlock();
 					NotifyFileProcessed(CONSUMED, processFilePath.string());
+					NotifyStatusBarUpdate(0, 0, processFilePath.filename().string());
 
 					error.clear();
 					message = QueryFileName(processFilePath, error);
@@ -388,6 +426,7 @@ namespace boost_file_storage
 						NotifySocketConnection(STATUS_DISCONNECTING);
 						m_socket->close();
 					}
+					NotifyStatusBarUpdate(1, 0);
 				}
 				else
 				{

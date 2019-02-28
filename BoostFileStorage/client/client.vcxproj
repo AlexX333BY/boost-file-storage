@@ -24,6 +24,7 @@
     <ClCompile Include="FileProcessEvent.cpp" />
     <ClCompile Include="FileStorageApp.cpp" />
     <ClCompile Include="FileStorageFrame.cpp" />
+    <ClCompile Include="StatusBarUpdateEvent.cpp" />
     <ClCompile Include="IpValidator.cpp" />
     <ClCompile Include="LogMessagesGenerator.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="FileProcessEvent.h" />
     <ClInclude Include="FileStorageApp.h" />
     <ClInclude Include="FileStorageFrame.h" />
+    <ClInclude Include="StatusBarUpdateEvent.h" />
     <ClInclude Include="IpValidator.h" />
     <ClInclude Include="LogMessagesGenerator.h" />
     <ClInclude Include="PortValidator.h" />
