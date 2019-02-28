@@ -30,8 +30,9 @@ namespace boost_file_storage
 		void Log(const wxString *messages, unsigned int count = 1);
 		client_socket *m_socket;
 		std::queue<std::experimental::filesystem::path> m_fileQueue;
-		std::mutex *m_fileQueueMutex;
-		std::condition_variable *m_fileQueueConditionVariable;
+		std::mutex m_fileQueueMutex;
+		std::condition_variable m_fileQueueConditionVariable;
+		std::thread *m_socket_thread;
 
 		wxGauge *m_sendingFileGauge;
 		wxButton *m_connectButton;

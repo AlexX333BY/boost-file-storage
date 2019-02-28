@@ -10,9 +10,12 @@ namespace boost_file_storage
 	const wxString connectCaption = "Connect";
 	const wxString disconnectcCaption = "Disconnect";
 
+	void SocketListeningThreadRoutine(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
+		std::mutex &fileMutex, std::condition_variable &fileConditionVariable, FileStorageFrame *parent);
+
 	FileStorageFrame::FileStorageFrame(const wxString& title, const int border)
 		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), 
-		m_socket(nullptr), m_fileQueueMutex(new std::mutex()), m_fileQueueConditionVariable(new std::condition_variable())
+		m_socket(nullptr), m_socket_thread(nullptr)
 	{
 		wxStatusBar *statusBar = CreateStatusBar();
 		wxBoxSizer *statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -65,8 +68,14 @@ namespace boost_file_storage
 			}
 			delete m_socket;
 		}
-		delete m_fileQueueConditionVariable;
-		delete m_fileQueueMutex;
+		if (m_socket_thread != nullptr)
+		{
+			if (m_socket_thread->joinable())
+			{
+				m_socket_thread->join();
+			}
+			delete m_socket_thread;
+		}
 	}
 
 	void FileStorageFrame::Log(const wxString *messages, unsigned int count)
@@ -85,7 +94,7 @@ namespace boost_file_storage
 				wxArrayString paths;
 				fileDialog.GetPaths(paths);
 				
-				m_fileQueueMutex->lock();
+				m_fileQueueMutex.lock();
 				bool wasEmpty = m_fileQueue.empty();
 				for (size_t i = 0; i < paths.GetCount(); ++i)
 				{
@@ -94,9 +103,9 @@ namespace boost_file_storage
 				}
 				if (wasEmpty)
 				{
-					m_fileQueueConditionVariable->notify_one();
+					m_fileQueueConditionVariable.notify_one();
 				}
-				m_fileQueueMutex->unlock();
+				m_fileQueueMutex.unlock();
 			}
 		}
 		else
@@ -114,7 +123,7 @@ namespace boost_file_storage
 			{
 				wxArrayString files;
 				wxDir::GetAllFiles(dirDialog.GetPath(), &files, wxEmptyString, wxDIR_FILES | wxDIR_DIRS | wxDIR_NO_FOLLOW);
-				m_fileQueueMutex->lock();
+				m_fileQueueMutex.lock();
 				bool wasEmpty = m_fileQueue.empty();
 				for (size_t i = 0; i < files.GetCount(); ++i)
 				{
@@ -123,9 +132,9 @@ namespace boost_file_storage
 				}
 				if (wasEmpty)
 				{
-					m_fileQueueConditionVariable->notify_one();
+					m_fileQueueConditionVariable.notify_one();
 				}
-				m_fileQueueMutex->unlock();
+				m_fileQueueMutex.unlock();
 			}
 		}
 		else
@@ -143,7 +152,8 @@ namespace boost_file_storage
 			{
 				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
 				m_socket = new client_socket(BUFSIZ);
-				/* start thread-socket listener */
+				m_socket_thread = new std::thread(SocketListeningThreadRoutine, m_socket, addressDlg.GetAddress(), 
+					m_fileQueue, m_fileQueueMutex, m_fileQueueConditionVariable, this);
 			}
 		}
 		else
@@ -166,6 +176,15 @@ namespace boost_file_storage
 		{
 			delete m_socket;
 			m_socket = nullptr;
+		}
+		if (m_socket_thread != nullptr)
+		{
+			if (m_socket_thread->joinable())
+			{
+				m_socket_thread->join();
+			}
+			delete m_socket_thread;
+			m_socket_thread = nullptr;
 		}
 
 		m_connectButton->SetLabel(connectCaption);
@@ -304,8 +323,8 @@ namespace boost_file_storage
 	socket_message *SendFile(client_socket *socket, std::experimental::filesystem::path &filePath, boost::system::error_code &error);
 	void SendMessageResultNotification(socket_message *message, FileStorageFrame *frame, std::string *filename = nullptr);
 
-	void SocketListeningThread(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
-		std::mutex &fileMutex, std::condition_variable *fileConditionVariable, FileStorageFrame *parent)
+	void SocketListeningThreadRoutine(client_socket *socket, wxIPV4address address, std::queue<std::experimental::filesystem::path> &fileQueue,
+		std::mutex &fileMutex, std::condition_variable &fileConditionVariable, FileStorageFrame *parent)
 	{
 		parent->NotifySocketConnection(CONNECTING);
 		if (!socket->connect(address.IPAddress().ToStdString(), address.Service()))
@@ -321,7 +340,7 @@ namespace boost_file_storage
 				lock.lock();
 				while (fileQueue.empty() && socket->is_running())
 				{
-					fileConditionVariable->wait(lock);
+					fileConditionVariable.wait(lock);
 				}
 				if (socket->is_running())
 				{
