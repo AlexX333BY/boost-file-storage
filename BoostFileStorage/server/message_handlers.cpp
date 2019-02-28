@@ -3,9 +3,10 @@
 
 namespace boost_file_storage
 {
-	boost::system::error_code server_disconnect_handler(socket_message *, server_socket *socket, std::experimental::filesystem::path *, std::experimental::filesystem::path *)
+	boost::system::error_code server_disconnect_handler(socket_message *, server_socket *socket, 
+		std::experimental::filesystem::path *, std::experimental::filesystem::path *)
 	{
-		return socket->stop();
+		return socket->close();
 	}
 
 	boost::system::error_code server_file_query_handler(socket_message *client_message, server_socket *socket, 

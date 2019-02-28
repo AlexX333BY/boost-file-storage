@@ -24,32 +24,26 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		socket_message *client_message;
 		std::experimental::filesystem::path save_file_path;
-		bool is_client_connected = false;
 		std::map<message_type, server_message_handler> handlers = get_server_handlers();
 
 		while (should_run->load())
 		{
 			socket->open();
-			while (should_run->load() && !is_client_connected)
+			while (should_run->load() && !socket->is_connected())
 			{
-				is_client_connected = socket->accept() ? true : false;
+				socket->accept();
 			}
-			while (should_run->load() && is_client_connected)
+			while (should_run->load() && socket->is_connected())
 			{
 				client_message = socket->get_message(error);
 				if (!error)
 				{
 					handlers.at(client_message->get_message_type())(client_message, socket, download_folder, &save_file_path);
-					if (client_message->get_message_type() == DISCONNECT)
-					{
-						is_client_connected = false;
-					}
 					delete client_message;
 				}
 				else
 				{
-					socket->stop();
-					is_client_connected = false;
+					socket->close();
 				}
 			}
 		}
@@ -144,7 +138,7 @@ namespace boost_file_storage
 
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 			{
-				(*it)->stop();
+				(*it)->close();
 			}
 
 			for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
