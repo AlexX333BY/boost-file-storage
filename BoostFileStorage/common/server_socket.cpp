@@ -13,46 +13,29 @@ namespace boost_file_storage
 
 	server_socket::~server_socket()
 	{
-		if (is_running())
+		if (!is_closed())
 		{
-			stop();
+			close();
 		}
 
 		boost::system::error_code error;
 		m_acceptor->close(error);
-		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-		m_tcp_socket->close(error);
 
 		delete m_acceptor;
-		delete m_tcp_socket;
 		delete m_context;
 	}
 
-	bool server_socket::is_running()
+	boost::system::error_code server_socket::open()
 	{
-		return m_state != CLOSED;
-	}
-
-	bool server_socket::is_connected()
-	{
-		return m_state == CONNECTED;
-	}
-
-	bool server_socket::open()
-	{
-		if (!is_running())
+		if (is_closed())
 		{
-			if (m_tcp_socket != nullptr)
-			{
-				delete m_tcp_socket;
-			}
 			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
 			m_state = OPENED;
-			return true;
+			return boost::system::error_code();
 		}
 		else
 		{
-			return false;
+			return boost::system::errc::make_error_code(boost::system::errc::device_or_resource_busy);
 		}
 	}
 
@@ -63,9 +46,9 @@ namespace boost_file_storage
 
 	boost::system::error_code server_socket::accept()
 	{
-		boost::system::error_code error;
-		if (is_running() && !is_connected())
+		if (is_opened())
 		{
+			boost::system::error_code error;
 			m_acceptor->async_accept(*m_tcp_socket, std::bind(&server_socket::accept_handler, this, std::placeholders::_1));
 			m_context->run_one(error);
 			if (!error && !m_accept_error)
@@ -74,21 +57,34 @@ namespace boost_file_storage
 			}
 			return error ? error : m_accept_error;
 		}
-		else
+		else if (is_connected())
 		{
 			return boost::system::errc::make_error_code(boost::system::errc::already_connected);
 		}
+		else
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::no_stream_resources);
+		}
 	}
 
-	boost::system::error_code server_socket::stop()
+	boost::system::error_code server_socket::close()
 	{
 		boost::system::error_code error;
-		if (is_running())
+		if (!is_closed())
 		{
 			m_acceptor->cancel(error);
 			m_tcp_socket->cancel(error);
+			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+			m_tcp_socket->close(error);
+			delete m_tcp_socket;
+			m_tcp_socket = nullptr;
 			m_state = CLOSED;
 		}
 		return error;
+	}
+
+	socket_state server_socket::get_state()
+	{
+		return m_state;
 	}
 }

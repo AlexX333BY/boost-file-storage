@@ -10,10 +10,9 @@ namespace boost_file_storage
 		server_socket(unsigned short port, size_t desired_buffer_size);
 		~server_socket();
 		boost::system::error_code accept();
-		bool open();
-		virtual bool is_running();
-		bool is_connected();
-		virtual boost::system::error_code stop();
+		virtual boost::system::error_code open();
+		virtual boost::system::error_code close();
+		virtual socket_state get_state();
 	protected:
 		socket_state m_state;
 		boost::asio::ip::tcp::acceptor *m_acceptor;

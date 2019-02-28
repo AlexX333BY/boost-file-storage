@@ -27,6 +27,9 @@
     <ClInclude Include="socket_message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="socket_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="socket.cpp">
