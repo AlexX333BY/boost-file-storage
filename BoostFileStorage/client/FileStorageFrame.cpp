@@ -14,17 +14,17 @@ namespace boost_file_storage
 		: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), 
 		m_socket(nullptr), m_socket_thread(nullptr)
 	{
-		wxStatusBar *statusBar = CreateStatusBar();
+		m_statusBar = CreateStatusBar();
 		m_statusBarSizer = new wxBoxSizer(wxHORIZONTAL);
 
-		m_sendingFileGauge = new wxGauge(statusBar, wxID_ANY, 0, wxDefaultPosition, 
-			wxSize(statusBar->GetSize().GetWidth() / 10, wxDefaultSize.GetHeight()), wxGA_HORIZONTAL);
+		m_sendingFileGauge = new wxGauge(m_statusBar, wxID_ANY, 0, wxDefaultPosition, 
+			wxSize(m_statusBar->GetSize().GetWidth() / 10, wxDefaultSize.GetHeight()), wxGA_HORIZONTAL);
 		m_sendingFileGauge->SetValue(0);
-		m_sendingFileName = new wxStaticText(statusBar, wxID_ANY, wxEmptyString);
+		m_sendingFileName = new wxStaticText(m_statusBar, wxID_ANY, wxEmptyString);
 		
 		m_statusBarSizer->Add(m_sendingFileGauge, 1, wxEXPAND | wxALIGN_LEFT | wxALL, border);
 		m_statusBarSizer->Add(m_sendingFileName, 4, wxEXPAND | wxALL, border);
-		statusBar->SetSizer(m_statusBarSizer);
+		m_statusBar->SetSizer(m_statusBarSizer);
 		m_statusBarSizer->Show(false);
 
 		wxPanel *panel = new wxPanel(this);
@@ -275,7 +275,7 @@ namespace boost_file_storage
 		case CONSUMED:
 			message = m_logGenerator.GenerateFileConsumedMessage(event.GetFilename());
 			m_statusBarSizer->Show(true);
-			m_statusBarSizer->Layout();
+			m_statusBar->Layout();
 			break;
 		case SERVER_CHANGED_NAME:
 			message = m_logGenerator.GenerateFileNameChangedMessage(event.GetFilename());
@@ -499,6 +499,11 @@ namespace boost_file_storage
 					wxString((char *)message->get_buffer(), message->get_buffer_length())));
 			}
 			break;
+		case FILE_TRANSFER_SUCCESS:
+			if (filename != nullptr)
+			{
+				NotifyFileProcessed(SENT, *filename);
+			}
 		}
 	}
 }

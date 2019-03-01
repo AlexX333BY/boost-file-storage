@@ -59,7 +59,7 @@ namespace boost_file_storage
 					std::ofstream file(absolute_path.c_str(), std::ios::out | std::ios::binary);
 					file.write((char *)client_message->get_buffer(), client_message->get_buffer_length());
 					file.close();
-					message = new socket_message(OK, 0, nullptr);
+					message = new socket_message(FILE_TRANSFER_SUCCESS, 0, nullptr);
 				}
 				else
 				{

@@ -14,6 +14,7 @@ namespace boost_file_storage
 		UPLOAD_FILE_QUERY,
 
 		//server commands
+		FILE_TRANSFER_SUCCESS,
 		ERROR_TOO_BIG,
 		ERROR_NO_SPACE,
 		WARNING_NAME_EXISTS

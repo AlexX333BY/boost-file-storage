@@ -32,11 +32,12 @@ namespace boost_file_storage
 		std::condition_variable m_fileQueueConditionVariable;
 		std::thread *m_socket_thread;
 
-		wxGauge *m_sendingFileGauge;
 		wxButton *m_connectButton;
 		wxListBox *m_log;
 		wxStaticText *m_sendingFileName;
+		wxGauge *m_sendingFileGauge;
 		wxBoxSizer *m_statusBarSizer;
+		wxStatusBar *m_statusBar;
 		
 		void OnFileAdd(wxCommandEvent &event);
 		void OnFolderAdd(wxCommandEvent &event);
