@@ -78,10 +78,10 @@ namespace boost_file_storage
 				return;
 			}
 
-			g_sStorageServer = new server();
+			g_sStorageServer = new server(nullptr);
 			ReportServiceStatus(SERVICE_START_PENDING, 3);
 
-			if (!g_sStorageServer->initialize(saArguments.GetListenPort(), saArguments.GetDownloadFolder(),
+			if (!g_sStorageServer->initialize(saArguments.GetListenPort(), *saArguments.GetDownloadFolder(),
 				saArguments.GetMaxFileSize(), saArguments.GetSimultaneousDownloadCount()))
 			{
 				ReportServiceStatus(SERVICE_STOPPED, 0, 0, ERROR_SERVICE_SPECIFIC_ERROR, dwServerInitializeError);

@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <atomic>
 #include "../common/server_socket.h"
+#include "../common/logger.h"
 
 namespace boost_file_storage
 {
@@ -18,7 +19,7 @@ namespace boost_file_storage
 	class server
 	{
 	public:
-		server();
+		server(logger *logger);
 		~server();
 		bool initialize(unsigned short listen_port, std::string download_folder, size_t max_file_size, unsigned char max_simultaneous_downloads);
 		bool is_initialized();
@@ -28,11 +29,14 @@ namespace boost_file_storage
 	protected:
 		void clear_sockets();
 		void clear_threads();
+		void log_if_logger_exists(const std::string &message);
 		std::vector<server_socket *> m_sockets;
 		std::vector<std::thread *> m_threads;
 		std::experimental::filesystem::path m_download_folder;
 		unsigned char m_thread_count;
 		server_state m_state;
 		std::atomic_bool m_should_run;
+		logger *m_logger;
+		void socket_routine(server_socket *socket);
 	};
 }

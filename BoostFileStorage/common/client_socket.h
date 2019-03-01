@@ -1,5 +1,6 @@
 #pragma once
 #include "socket.h"
+#include "socket_state.h"
 #include <string>
 
 namespace boost_file_storage
@@ -7,16 +8,14 @@ namespace boost_file_storage
 	class client_socket : public socket
 	{
 	public:
-		client_socket();
+		client_socket(size_t desired_buffer_size);
 		~client_socket();
-		bool initialize(size_t desired_buffer_size);
 		boost::system::error_code connect(std::string ip, unsigned short port);
-		virtual bool is_running();
-		virtual bool is_initialized();
-		virtual boost::system::error_code stop();
+		virtual boost::system::error_code open();
+		virtual boost::system::error_code close();
+		virtual socket_state get_state();
 	protected:
 		boost::asio::io_context *m_context;
-		bool m_is_initialized;
-		bool m_is_running;
+		socket_state m_state;
 	};
 }

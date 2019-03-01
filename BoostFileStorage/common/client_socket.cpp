@@ -2,66 +2,28 @@
 
 namespace boost_file_storage
 {
-	client_socket::client_socket() : m_is_initialized(false), m_context(new boost::asio::io_context())
+	client_socket::client_socket(size_t desired_buffer_size) 
+		: socket(), m_context(new boost::asio::io_context()), m_state(CLOSED)
 	{ 
-		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
+		m_tcp_socket = nullptr;
 	}
 
 	client_socket::~client_socket()
 	{
-		if (is_initialized())
+		if (!is_closed())
 		{
-			if (is_running())
-			{
-				stop();
-			}
-			free(m_buffer);
+			close();
 		}
 
-		if (m_tcp_socket != nullptr)
-		{
-			delete m_tcp_socket;
-		}
 		delete m_context;
-	}
-
-	bool client_socket::is_initialized()
-	{
-		return m_is_initialized;
-	}
-
-	bool client_socket::is_running()
-	{
-		return m_is_running;
-	}
-
-	bool client_socket::initialize(size_t desired_buffer_size)
-	{
-		if (!is_initialized())
-		{
-			size_t buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
-			m_buffer = malloc(buffer_size);
-			if (m_buffer == nullptr)
-			{
-				return false;
-			}
-
-			m_buffer_size = buffer_size;
-			m_is_initialized = true;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	boost::system::error_code client_socket::connect(std::string ip, unsigned short port)
 	{
-		throw_if_not_initialized();
-		boost::system::error_code error;
-		if (!is_running())
+		if (is_opened())
 		{
+			boost::system::error_code error;
 			boost::asio::ip::address nonstr_ip = boost::asio::ip::address::from_string(ip, error);
 			if (!error)
 			{
@@ -69,28 +31,52 @@ namespace boost_file_storage
 				m_tcp_socket->connect(endpoint, error);
 				if (!error)
 				{
-					m_is_running = true;
+					m_state = CONNECTED;
 				}
 			}
+			return error;
+		}
+		else if (is_connected())
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::already_connected);
+		}
+		else
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::no_stream_resources);
+		}
+	}
+
+	boost::system::error_code client_socket::close()
+	{
+		boost::system::error_code error;
+		if (!is_closed())
+		{
+			m_tcp_socket->cancel(error);
+			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+			m_tcp_socket->close(error);
+			delete m_tcp_socket;
+			m_tcp_socket = nullptr;
+			m_state = CLOSED;
 		}
 		return error;
 	}
 
-	boost::system::error_code client_socket::stop()
+	boost::system::error_code client_socket::open()
 	{
-		throw_if_not_initialized();
-		boost::system::error_code error;
-		if (is_running())
+		if (is_closed())
 		{
-			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-			if (!error)
-			{
-				m_tcp_socket->close(error);
-			}
-			delete m_tcp_socket;
 			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
-			return error;
+			m_state = OPENED;
+			return boost::system::error_code();
 		}
-		return error;
+		else
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::device_or_resource_busy);
+		}
+	}
+
+	socket_state client_socket::get_state()
+	{
+		return m_state;
 	}
 }

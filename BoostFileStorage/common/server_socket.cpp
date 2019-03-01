@@ -2,83 +2,95 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket(unsigned short port) : m_is_initialized(false), m_is_running(false), m_context(new boost::asio::io_context())
+	server_socket::server_socket(unsigned short port, size_t desired_buffer_size)
+		: socket(), m_state(CLOSED), m_context(new boost::asio::io_context())
 	{
+		m_tcp_socket = nullptr;
 		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
 		m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, endpoint);
-		m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
 	}
 
 	server_socket::~server_socket()
 	{
-		if (is_initialized())
+		if (!is_closed())
 		{
-			if (is_running())
-			{
-				stop();
-			}
-			free(m_buffer);
+			close();
 		}
 
+		boost::system::error_code error;
+		m_acceptor->close(error);
+
 		delete m_acceptor;
-		delete m_tcp_socket;
 		delete m_context;
 	}
 
-	bool server_socket::is_initialized()
+	boost::system::error_code server_socket::open()
 	{
-		return m_is_initialized;
-	}
-
-	bool server_socket::is_running()
-	{
-		return m_is_running;
-	}
-
-	bool server_socket::initialize(size_t desired_buffer_size)
-	{
-		if (!is_initialized())
+		if (is_closed())
 		{
-			size_t buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
-			m_buffer = malloc(buffer_size);
-			if (m_buffer == nullptr)
+			boost::system::error_code error;
+			m_acceptor->open(boost::asio::ip::tcp::v4(), error);
+			if (!error || (error.value() == boost::system::errc::operation_not_permitted))
 			{
-				return false;
+				m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+				m_state = OPENED;
 			}
-
-			m_buffer_size = buffer_size;
-			m_is_initialized = true;
-			return true;
+			return error;
 		}
 		else
 		{
-			return false;
+			return boost::system::errc::make_error_code(boost::system::errc::device_or_resource_busy);
 		}
+	}
+
+	void server_socket::accept_handler(const boost::system::error_code& error)
+	{
+		m_accept_error = error;
 	}
 
 	boost::system::error_code server_socket::accept()
 	{
-		throw_if_not_initialized();
-		boost::system::error_code error;
-		m_acceptor->accept(*m_tcp_socket, error);
-		if (!error)
+		if (is_opened())
 		{
-			m_is_running = true;
+			boost::system::error_code error;
+			m_acceptor->async_accept(*m_tcp_socket, std::bind(&server_socket::accept_handler, this, std::placeholders::_1));
+			m_context->run(error);
+			if (!error && !m_accept_error)
+			{
+				m_state = CONNECTED;
+			}
+
+			return error ? error : m_accept_error;
+		}
+		else if (is_connected())
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::already_connected);
+		}
+		else
+		{
+			return boost::system::errc::make_error_code(boost::system::errc::no_stream_resources);
+		}
+	}
+
+	boost::system::error_code server_socket::close()
+	{
+		boost::system::error_code error;
+		if (!is_closed())
+		{
+			m_acceptor->close(error);
+			m_tcp_socket->cancel(error);
+			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+			m_tcp_socket->close(error);
+			delete m_tcp_socket;
+			m_tcp_socket = nullptr;
+			m_state = CLOSED;
 		}
 		return error;
 	}
 
-	boost::system::error_code server_socket::stop()
+	socket_state server_socket::get_state()
 	{
-		throw_if_not_initialized();
-		boost::system::error_code error;
-		m_acceptor->close(error);
-		m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-		if (!error)
-		{
-			m_is_running = false;
-			m_tcp_socket->close(error);
-		}
-		return error;
+		return m_state;
 	}
 }

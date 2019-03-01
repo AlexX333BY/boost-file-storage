@@ -1,5 +1,6 @@
 #ifdef _DEBUG 
 #include "../server/server.h"
+#include "../common/console_logger.h"
 #include <string>
 
 using namespace boost_file_storage;
@@ -8,22 +9,21 @@ int main()
 {
 	const unsigned short dbg_port = 8080;
 	const std::string dbg_download_dir = "C:\\Users\\user\\Downloads";
-	const size_t dbg_max_file_size = 70000;
-	const unsigned char dbg_threads = 16;
+	const size_t dbg_max_file_size = 65536;
+	const unsigned char dbg_threads = 1;
 
-	server *s = new server();
-	bool is_initialized = s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads);
-	printf("Is server initialized? %s\n", is_initialized ? "TRUE" : "FALSE");
-	if (is_initialized) {
-		bool is_started = s->start();
-		printf("Is server started? %s\n", is_started ? "TRUE" : "FALSE");
-		if (is_started)
+	server *s = new server(new console_logger("Storage server"));
+	if (s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads))
+	{
+		if (s->start())
 		{
-			bool is_stopped = s->stop();
-			printf("Is server stopped? %s\n", is_stopped ? "TRUE" : "FALSE");
+			system("pause");
+			s->stop();
 		}
 	}
+		
 	delete s;
+	system("pause");
 	return 0;
 }
 #else

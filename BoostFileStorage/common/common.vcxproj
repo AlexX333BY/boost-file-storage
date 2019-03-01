@@ -20,12 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client_socket.h" />
+    <ClInclude Include="console_logger.h" />
+    <ClInclude Include="logger.h" />
     <ClInclude Include="server_socket.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="socket_message.h" />
+    <ClInclude Include="socket_state.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client_socket.cpp" />
+    <ClCompile Include="console_logger.cpp" />
     <ClCompile Include="server_socket.cpp" />
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="socket_message.cpp" />
@@ -100,6 +104,7 @@
       <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
       <LanguageStandard>
       </LanguageStandard>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0600</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib</AdditionalLibraryDirectories>
@@ -131,6 +136,7 @@
       <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
       <LanguageStandard>
       </LanguageStandard>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0600</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

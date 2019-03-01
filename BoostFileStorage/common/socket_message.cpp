@@ -9,7 +9,7 @@ namespace boost_file_storage
 	{
 		if (data_buffer != nullptr)
 		{
-			m_buffer = malloc(m_buffer_length);
+			m_buffer = new unsigned char[m_buffer_length];
 			memcpy_s(m_buffer, m_buffer_length, data_buffer, m_buffer_length);
 		}
 		else
@@ -22,7 +22,7 @@ namespace boost_file_storage
 	{
 		if (m_buffer != nullptr)
 		{
-			free(m_buffer);
+			delete[] m_buffer;
 		}
 	}
 
@@ -39,5 +39,22 @@ namespace boost_file_storage
 	void *socket_message::get_buffer()
 	{
 		return m_buffer;
+	}
+
+	bool socket_message::is_error_message()
+	{
+		bool result;
+		switch (m_message_type)
+		{
+		case ERROR_COMMON:
+		case ERROR_TOO_BIG:
+		case ERROR_NO_SPACE:
+			result = true;
+			break;
+		default:
+			result = false;
+			break;
+		}
+		return result;
 	}
 }

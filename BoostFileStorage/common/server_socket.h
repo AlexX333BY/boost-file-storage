@@ -1,22 +1,23 @@
 #pragma once
 #include "socket.h"
+#include "socket_state.h"
 
 namespace boost_file_storage
 {
 	class server_socket : public socket
 	{
 	public:
-		server_socket(unsigned short port);
+		server_socket(unsigned short port, size_t desired_buffer_size);
 		~server_socket();
-		bool initialize(size_t desired_buffer_size);
 		boost::system::error_code accept();
-		virtual bool is_running();
-		virtual bool is_initialized();
-		virtual boost::system::error_code stop();
+		virtual boost::system::error_code open();
+		virtual boost::system::error_code close();
+		virtual socket_state get_state();
 	protected:
+		socket_state m_state;
 		boost::asio::ip::tcp::acceptor *m_acceptor;
 		boost::asio::io_context *m_context;
-		bool m_is_initialized;
-		bool m_is_running;
+		boost::system::error_code m_accept_error;
+		void accept_handler(const boost::system::error_code& error);
 	};
 }

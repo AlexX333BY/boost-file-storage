@@ -4,7 +4,7 @@
 
 namespace boost_file_storage
 {
-	server::server() : m_state(UNINITIALIZED), m_should_run(false), m_thread_count(0)
+	server::server(logger *logger) : m_state(UNINITIALIZED), m_should_run(false), m_thread_count(0), m_logger(logger)
 	{ }
 
 	server::~server()
@@ -17,41 +17,53 @@ namespace boost_file_storage
 		{
 			clear_sockets();
 		}
+
+		delete m_logger;
 	}
 
-	void socket_thread(server_socket *socket, std::atomic_bool *should_run, std::experimental::filesystem::path *download_folder)
+	void server::socket_routine(server_socket *socket)
 	{
 		boost::system::error_code error;
 		socket_message *client_message;
 		std::experimental::filesystem::path save_file_path;
-		bool is_client_connected = false;
 		std::map<message_type, server_message_handler> handlers = get_server_handlers();
 
-		while (should_run->load())
+		while (m_should_run.load())
 		{
-			while (should_run->load() && !is_client_connected)
+			while (m_should_run.load() && !socket->is_opened())
 			{
-				is_client_connected = socket->accept() ? true : false;
+				error = socket->open();
+				log_if_logger_exists("Open: " + error.message());
 			}
-			while (should_run->load() && is_client_connected)
+			while (m_should_run.load() && !socket->is_connected())
+			{
+				error = socket->accept();
+				log_if_logger_exists("Accept: " + error.message());
+			}
+			while (m_should_run.load() && socket->is_connected())
 			{
 				client_message = socket->get_message(error);
+				log_if_logger_exists("Accept message: " + error.message());
 				if (!error)
 				{
-					handlers.at(client_message->get_message_type())(client_message, socket, download_folder, &save_file_path);
-					if (client_message->get_message_type() == DISCONNECT)
-					{
-						socket->stop();
-						is_client_connected = false;
-					}
+					error = handlers.at(client_message->get_message_type())(client_message, socket, &m_download_folder, &save_file_path, m_logger);
+					log_if_logger_exists("Handling message: " + error.message());
 					delete client_message;
 				}
 				else
 				{
-					socket->stop();
-					is_client_connected = false;
+					socket->close();
+					log_if_logger_exists("Socket closed");
 				}
 			}
+		}
+	}
+
+	void server::log_if_logger_exists(const std::string &message)
+	{
+		if (m_logger != nullptr)
+		{
+			m_logger->log(message);
 		}
 	}
 
@@ -81,28 +93,26 @@ namespace boost_file_storage
 	{
 		if (!is_initialized())
 		{
+			log_if_logger_exists("Server is initializing");
 			std::experimental::filesystem::path path(download_folder);
 			if (std::experimental::filesystem::exists(path) && std::experimental::filesystem::is_directory(path))
 			{
 				server_socket *socket;
 				for (int i = 0; i < max_simultaneous_downloads; ++i)
 				{
-					socket = new server_socket(listen_port);
-					if (!socket->initialize(max_file_size))
-					{
-						clear_sockets();
-						return false;
-					}
+					socket = new server_socket(listen_port, max_file_size);
 					m_sockets.push_back(socket);
 				}
 
 				m_download_folder = path;
 				m_thread_count = max_simultaneous_downloads;
 				m_state = INITIALIZED;
+				log_if_logger_exists("Successfully initialized");
 				return true;
 			}
 			else
 			{
+				log_if_logger_exists("Initialize error: download path doesn't exist");
 				return false;
 			}
 		}
@@ -126,13 +136,15 @@ namespace boost_file_storage
 	{
 		if (is_initialized() && !is_running())
 		{
+			log_if_logger_exists("Server is starting");
 			m_should_run.store(true);
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 			{
-				m_threads.push_back(new std::thread(socket_thread, *it, &m_should_run, &m_download_folder));
+				m_threads.push_back(new std::thread(&server::socket_routine, this, *it));
 			}
 
 			m_state = RUNNING;
+			log_if_logger_exists("Startup successfull");
 			return true;
 		}
 		else
@@ -145,24 +157,23 @@ namespace boost_file_storage
 	{
 		if (is_running())
 		{
+			log_if_logger_exists("Server is stopping");
 			m_should_run.store(false);
 
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 			{
-				if ((*it)->is_running())
-				{
-					(*it)->stop();
-				}
+				(*it)->close();
 			}
-			clear_sockets();
 
 			for (std::vector<std::thread *>::const_iterator it = m_threads.cbegin(); it != m_threads.cend(); ++it)
 			{
 				(*it)->join();
 			}
 			clear_threads();
+			clear_sockets();
 
 			m_state = UNINITIALIZED;
+			log_if_logger_exists("Server stopped");
 			return true;
 		}
 		else

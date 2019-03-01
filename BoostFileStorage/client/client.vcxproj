@@ -18,6 +18,36 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AddressChooserDialog.cpp" />
+    <ClCompile Include="ConnectionEvent.cpp" />
+    <ClCompile Include="FileProcessEvent.cpp" />
+    <ClCompile Include="FileStorageApp.cpp" />
+    <ClCompile Include="FileStorageFrame.cpp" />
+    <ClCompile Include="StatusBarUpdateEvent.cpp" />
+    <ClCompile Include="IpValidator.cpp" />
+    <ClCompile Include="LogMessagesGenerator.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PortValidator.cpp" />
+    <ClCompile Include="TextCtrlValidator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AddressChooserDialog.h" />
+    <ClInclude Include="ConnectionEvent.h" />
+    <ClInclude Include="FileProcessEvent.h" />
+    <ClInclude Include="FileStorageApp.h" />
+    <ClInclude Include="FileStorageFrame.h" />
+    <ClInclude Include="StatusBarUpdateEvent.h" />
+    <ClInclude Include="IpValidator.h" />
+    <ClInclude Include="LogMessagesGenerator.h" />
+    <ClInclude Include="PortValidator.h" />
+    <ClInclude Include="TextCtrlValidator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\common.vcxproj">
+      <Project>{dbb770e4-1658-4324-acf4-c0170b31f22f}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{70A3AAE4-D7B2-4D07-9D90-D52510EA2C4C}</ProjectGuid>
@@ -84,10 +114,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_ROOT);$(wxwin)/include/msvc;$(wxwin)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);WXUSINGDLL;wxMSVC_VERSION_AUTO;_UNICODE;UNICODE</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib;$(wxwin)\lib\vc141_x64_dll</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -112,12 +143,13 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(BOOST_ROOT)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_ROOT);$(wxwin)/include/msvc;$(wxwin)/include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);WXUSINGDLL;wxMSVC_VERSION_AUTO;_UNICODE;UNICODE</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\stage\lib;$(wxwin)\lib\vc141_x64_dll</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

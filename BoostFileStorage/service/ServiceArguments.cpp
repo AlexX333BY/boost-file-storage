@@ -3,12 +3,20 @@
 
 namespace boost_file_storage
 {
-	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0)
+	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0), m_sDownloadFolder(NULL)
 	{ }
+
+	ServiceArguments::~ServiceArguments()
+	{
+		if (m_sDownloadFolder != NULL)
+		{
+			delete m_sDownloadFolder;
+		}
+	}
 
 	BOOL ServiceArguments::SetData(DWORD argc, LPTSTR *argv)
 	{
-		if (argc == GetRequiredArgumentsCount())
+		if ((argc == GetRequiredArgumentsCount()) && (argv != NULL))
 		{
 			char **endptr;
 			unsigned long long ullTemp;
@@ -24,7 +32,7 @@ namespace boost_file_storage
 				return FALSE;
 			}
 
-			m_sDownloadFolder = std::string(argv[2]);
+			SetDownloadFolder(new std::string(argv[2]));
 
 			endptr = nullptr;
 			ullTemp = strtoull(argv[3], endptr, 0);
@@ -57,12 +65,16 @@ namespace boost_file_storage
 
 	}
 
-	VOID ServiceArguments::SetDownloadFolder(std::string sDownloadFolder)
+	VOID ServiceArguments::SetDownloadFolder(const std::string *sDownloadFolder)
 	{
+		if (m_sDownloadFolder != NULL)
+		{
+			delete m_sDownloadFolder;
+		}
 		m_sDownloadFolder = sDownloadFolder;
 	}
 
-	std::string ServiceArguments::GetDownloadFolder()
+	const std::string *ServiceArguments::GetDownloadFolder() const
 	{
 		return m_sDownloadFolder;
 	}
@@ -72,7 +84,7 @@ namespace boost_file_storage
 		m_usListenPort = usPort;
 	}
 
-	unsigned short ServiceArguments::GetListenPort()
+	unsigned short ServiceArguments::GetListenPort() const
 	{
 		return m_usListenPort;
 	}
@@ -82,7 +94,7 @@ namespace boost_file_storage
 		m_ucThreadCount = ucThreadCount;
 	}
 
-	unsigned char ServiceArguments::GetSimultaneousDownloadCount()
+	unsigned char ServiceArguments::GetSimultaneousDownloadCount() const
 	{
 		return m_ucThreadCount;
 	}
@@ -92,7 +104,7 @@ namespace boost_file_storage
 		m_sFileSize = sFileSize;
 	}
 
-	size_t ServiceArguments::GetMaxFileSize()
+	size_t ServiceArguments::GetMaxFileSize() const
 	{
 		return m_sFileSize;
 	}
