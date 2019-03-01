@@ -6,6 +6,7 @@ namespace boost_file_storage
 {
 	class logger
 	{
-		virtual void log(std::string message) = 0;
+	public:
+		virtual void log(const std::string &message) = 0;
 	};
 }
