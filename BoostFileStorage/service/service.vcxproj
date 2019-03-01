@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="Service.h" />
     <ClInclude Include="ServiceArguments.h" />
+    <ClInclude Include="ServiceLogger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
