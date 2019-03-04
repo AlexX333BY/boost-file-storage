@@ -23,7 +23,7 @@ namespace boost_file_storage
 	struct socket_message
 	{
 	public:
-		socket_message(message_type message_type, size_t data_buffer_length = 0, const void *data_bufffer = nullptr);
+		socket_message(message_type log_message_type, size_t data_buffer_length = 0, const void *data_bufffer = nullptr);
 		~socket_message();
 		message_type get_message_type();
 		size_t get_buffer_length();

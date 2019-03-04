@@ -4,8 +4,8 @@
 
 namespace boost_file_storage
 {
-	socket_message::socket_message(message_type message_type, size_t data_buffer_length, const void *data_buffer)
-		: m_message_type(message_type), m_buffer_length(data_buffer_length)
+	socket_message::socket_message(message_type log_message_type, size_t data_buffer_length, const void *data_buffer)
+		: m_message_type(log_message_type), m_buffer_length(data_buffer_length)
 	{
 		if (data_buffer != nullptr)
 		{
