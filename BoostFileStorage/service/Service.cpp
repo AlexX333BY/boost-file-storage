@@ -116,9 +116,9 @@ namespace boost_file_storage
 
 	BOOL StartStorageService()
 	{
-		int iServiceNameLength = lstrlen(lpcsServiceName);
-		TCHAR *szServiceName = (TCHAR *)calloc(iServiceNameLength + 1, sizeof(TCHAR));
-		strcpy_s(szServiceName, iServiceNameLength + 1, lpcsServiceName);
+		size_t sServiceNameLength = lstrlen(lpcsServiceName);
+		TCHAR *szServiceName = new TCHAR[sServiceNameLength + 1];
+		strcpy_s(szServiceName, sServiceNameLength + 1, lpcsServiceName);
 
 		SERVICE_TABLE_ENTRY aServiceStartTable[] =
 		{

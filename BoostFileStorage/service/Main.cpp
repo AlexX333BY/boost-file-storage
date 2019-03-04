@@ -13,9 +13,7 @@ int main()
 	const size_t dbg_max_file_size = 65536;
 	const unsigned char dbg_threads = 1;
 
-	ServiceLogger *logger = new ServiceLogger();
-	logger->Initialize(NULL, "BoostFileStorageEventProvider");
-	server *s = new server(logger);
+	server *s = new server(new console_logger("Server"));
 	if (s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads))
 	{
 		if (s->start())
