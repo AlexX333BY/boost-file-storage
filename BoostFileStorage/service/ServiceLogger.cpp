@@ -1,4 +1,5 @@
 #include "ServiceLogger.h"
+#include "BoostFileStorageEventProvider.h"
 
 namespace boost_file_storage
 {
@@ -15,22 +16,22 @@ namespace boost_file_storage
 
 	void ServiceLogger::log_info(const std::string &message)
 	{
-		log(message.c_str(), EVENTLOG_INFORMATION_TYPE);
+		log(message.c_str(), EVENTLOG_INFORMATION_TYPE, INFO_MESSAGE);
 	}
 
 	void ServiceLogger::log_error(const std::string &message)
 	{
-		log(message.c_str(), EVENTLOG_ERROR_TYPE);
+		log(message.c_str(), EVENTLOG_ERROR_TYPE, ERROR_MESSAGE);
 	}
 
 	void ServiceLogger::log_warning(const std::string &message)
 	{
-		log(message.c_str(), EVENTLOG_WARNING_TYPE);
+		log(message.c_str(), EVENTLOG_WARNING_TYPE, WARNING_MESSAGE);
 	}
 
-	VOID ServiceLogger::log(LPCTSTR lpctsMessage, WORD wMessageType)
+	VOID ServiceLogger::log(LPCTSTR lpctsMessage, WORD wMessageType, DWORD dwEventId)
 	{
-		ReportEvent(m_hEventLog, wMessageType, 0, 0, NULL, 1, 0, &lpctsMessage, NULL);
+		ReportEvent(m_hEventLog, wMessageType, DEFAULT_CATEGORY, dwEventId, NULL, 1, 0, &lpctsMessage, NULL);
 	}
 
 	BOOL ServiceLogger::Initialize(LPCSTR lpUNCServerName, LPCSTR lpSourceName)

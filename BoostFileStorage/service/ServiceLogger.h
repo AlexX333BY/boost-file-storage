@@ -17,6 +17,6 @@ namespace boost_file_storage
 		BOOL IsInitialized();
 	protected:
 		HANDLE m_hEventLog;
-		VOID log(LPCTSTR lpctsMessage, WORD wMessageType);
+		VOID log(LPCTSTR lpctsMessage, WORD wMessageType, DWORD dwEventId);
 	};
 }

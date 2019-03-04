@@ -135,7 +135,7 @@ namespace boost_file_storage
 			}
 
 			m_state = RUNNING;
-			log_if_logger_exists(m_logger, "Server startup successfull", ERROR_TYPE);
+			log_if_logger_exists(m_logger, "Server startup successfull", INFO_TYPE);
 			return true;
 		}
 		else
