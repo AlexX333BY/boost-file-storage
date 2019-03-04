@@ -1,5 +1,7 @@
 #include "service.h"
 #include <strsafe.h>
+#include "ServiceLogger.h"
+#include "BoostFileStorageEventProvider.h"
 
 namespace boost_file_storage
 {
@@ -78,7 +80,9 @@ namespace boost_file_storage
 				return;
 			}
 
-			g_sStorageServer = new server(nullptr);
+			ServiceLogger *logger = new ServiceLogger();
+			logger->Initialize(NULL, EVENT_PROVIDER_NAME);
+			g_sStorageServer = new server(logger);
 			ReportServiceStatus(SERVICE_START_PENDING, 3);
 
 			if (!g_sStorageServer->initialize(saArguments.GetListenPort(), *saArguments.GetDownloadFolder(),
