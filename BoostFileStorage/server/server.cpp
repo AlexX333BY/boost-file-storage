@@ -1,6 +1,7 @@
 #include "server.h"
 #include "../common/socket_message.h"
 #include "message_handlers.h"
+#include "checked_logger.h"
 
 namespace boost_file_storage
 {
@@ -33,37 +34,29 @@ namespace boost_file_storage
 			while (m_should_run.load() && !socket->is_opened())
 			{
 				error = socket->open();
-				log_if_logger_exists("Open: " + error.message());
+				log_if_logger_exists(m_logger, "Open: " + error.message(), error ? ERROR_TYPE : INFO_TYPE);
 			}
 			while (m_should_run.load() && !socket->is_connected())
 			{
 				error = socket->accept();
-				log_if_logger_exists("Accept: " + error.message());
+				log_if_logger_exists(m_logger, "Accept: " + error.message(), error ? ERROR_TYPE : INFO_TYPE);
 			}
 			while (m_should_run.load() && socket->is_connected())
 			{
 				client_message = socket->get_message(error);
-				log_if_logger_exists("Accept message: " + error.message());
+				log_if_logger_exists(m_logger, "Accept client message: " + error.message(), error ? ERROR_TYPE : INFO_TYPE);
 				if (!error)
 				{
 					error = handlers.at(client_message->get_message_type())(client_message, socket, &m_download_folder, &save_file_path, m_logger);
-					log_if_logger_exists("Handling message: " + error.message());
+					log_if_logger_exists(m_logger, "Handle client message: " + error.message(), error ? ERROR_TYPE : INFO_TYPE);
 					delete client_message;
 				}
 				else
 				{
 					socket->close();
-					log_if_logger_exists("Socket closed");
+					log_if_logger_exists(m_logger, "Socket closed", INFO_TYPE);
 				}
 			}
-		}
-	}
-
-	void server::log_if_logger_exists(const std::string &message)
-	{
-		if (m_logger != nullptr)
-		{
-			m_logger->log(message);
 		}
 	}
 
@@ -93,7 +86,6 @@ namespace boost_file_storage
 	{
 		if (!is_initialized())
 		{
-			log_if_logger_exists("Server is initializing");
 			std::experimental::filesystem::path path(download_folder);
 			if (std::experimental::filesystem::exists(path) && std::experimental::filesystem::is_directory(path))
 			{
@@ -107,12 +99,12 @@ namespace boost_file_storage
 				m_download_folder = path;
 				m_thread_count = max_simultaneous_downloads;
 				m_state = INITIALIZED;
-				log_if_logger_exists("Successfully initialized");
+				log_if_logger_exists(m_logger, "Server successfully initialized", INFO_TYPE);
 				return true;
 			}
 			else
 			{
-				log_if_logger_exists("Initialize error: download path doesn't exist");
+				log_if_logger_exists(m_logger, "Server initialize error: download path doesn't exist", ERROR_TYPE);
 				return false;
 			}
 		}
@@ -136,7 +128,6 @@ namespace boost_file_storage
 	{
 		if (is_initialized() && !is_running())
 		{
-			log_if_logger_exists("Server is starting");
 			m_should_run.store(true);
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 			{
@@ -144,7 +135,7 @@ namespace boost_file_storage
 			}
 
 			m_state = RUNNING;
-			log_if_logger_exists("Startup successfull");
+			log_if_logger_exists(m_logger, "Server startup successfull", ERROR_TYPE);
 			return true;
 		}
 		else
@@ -157,7 +148,6 @@ namespace boost_file_storage
 	{
 		if (is_running())
 		{
-			log_if_logger_exists("Server is stopping");
 			m_should_run.store(false);
 
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
@@ -173,7 +163,7 @@ namespace boost_file_storage
 			clear_sockets();
 
 			m_state = UNINITIALIZED;
-			log_if_logger_exists("Server stopped");
+			log_if_logger_exists(m_logger, "Server stopped", INFO_TYPE);
 			return true;
 		}
 		else

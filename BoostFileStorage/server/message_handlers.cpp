@@ -1,20 +1,13 @@
 #include "message_handlers.h"
 #include <fstream>
+#include "checked_logger.h"
 
 namespace boost_file_storage
 {
-	void log_if_logger_exists(logger *logger, const std::string &message)
-	{
-		if (logger != nullptr)
-		{
-			logger->log(message);
-		}
-	}
-
 	boost::system::error_code server_disconnect_handler(socket_message *, server_socket *socket, 
 		std::experimental::filesystem::path *, std::experimental::filesystem::path *, logger *logger)
 	{
-		log_if_logger_exists(logger, "Disconnect message, socket closing");
+		log_if_logger_exists(logger, "Disconnect message, socket closing", INFO_TYPE);
 		return socket->close();
 	}
 
@@ -25,10 +18,8 @@ namespace boost_file_storage
 		socket_message *message;
 		boost::system::error_code error;
 		client_file_path = std::experimental::filesystem::path(std::string((char *)client_message->get_buffer(), client_message->get_buffer_length()));
-		log_if_logger_exists(logger, "Checking client path " + client_file_path.string());
 		if (!std::experimental::filesystem::exists(*download_folder / client_file_path))
 		{
-			log_if_logger_exists(logger, "File path is OK");
 			message = new socket_message(OK, 0, nullptr);
 			result_path = client_file_path;
 		}
@@ -40,10 +31,10 @@ namespace boost_file_storage
 				result_path = ((client_file_path.stem() += std::to_string(i)) += client_file_path.extension());
 			}
 
-			log_if_logger_exists(logger, "File " + client_file_path.string() + " exists, name will be " + result_path.string());
 			std::string string_filename = result_path.string();
 			message = new socket_message(WARNING_NAME_EXISTS, string_filename.length() * sizeof(char), string_filename.c_str());
 		}
+		log_if_logger_exists(logger, "Client file " + client_file_path.string() + " will be saved as " + result_path.string(), INFO_TYPE);
 		file_path->assign(result_path.string());
 		socket->send_message(message, error);
 		delete message;
@@ -53,12 +44,11 @@ namespace boost_file_storage
 	boost::system::error_code server_file_handler(socket_message *client_message, server_socket *socket,
 		std::experimental::filesystem::path *download_folder, std::experimental::filesystem::path *file_path, logger *logger)
 	{
-		log_if_logger_exists(logger, "Acquiring file " + file_path->string() + " from client");
 		socket_message *message;
 		boost::system::error_code error;
 		if (client_message->get_buffer() == nullptr)
 		{
-			log_if_logger_exists(logger, "File is too big");
+			log_if_logger_exists(logger, "File " + file_path->string() + " is too big", WARNING_TYPE);
 			message = new socket_message(ERROR_TOO_BIG, 0, nullptr);
 			socket->skip(client_message->get_buffer_length());
 		}
@@ -73,18 +63,18 @@ namespace boost_file_storage
 					std::ofstream file(absolute_path.c_str(), std::ios::out | std::ios::binary);
 					file.write((char *)client_message->get_buffer(), client_message->get_buffer_length());
 					file.close();
-					log_if_logger_exists(logger, "Successfull file transfer");
+					log_if_logger_exists(logger, "Successfull file " + file_path->string() + " transfer", INFO_TYPE);
 					message = new socket_message(FILE_TRANSFER_SUCCESS, 0, nullptr);
 				}
 				else
 				{
-					log_if_logger_exists(logger, "File transfer error");
+					log_if_logger_exists(logger, "File " + file_path->string() + " transfer error", ERROR_TYPE);
 					message = new socket_message(ERROR_COMMON, 0, nullptr);
 				}
 			}
 			else
 			{
-				log_if_logger_exists(logger, "There is no space left in storage");
+				log_if_logger_exists(logger, "There is no space in storage for file " + file_path->string(), ERROR_TYPE);
 				message = new socket_message(ERROR_NO_SPACE, 0, nullptr);
 			}
 		}

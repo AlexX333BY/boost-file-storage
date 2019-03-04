@@ -21,12 +21,18 @@
     <ClInclude Include="message_handlers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="checked_logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="message_handlers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="checked_logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
