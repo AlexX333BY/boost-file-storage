@@ -34,7 +34,7 @@ namespace boost_file_storage
 			while (m_should_run.load() && !socket->is_opened())
 			{
 				error = socket->open();
-				log_if_logger_exists(m_logger, "Open: " + error.message(), socket->is_opened() ? INFO_TYPE : ERROR_TYPE);
+				log_if_logger_exists(m_logger, "Open: " + error.message(), error ? ERROR_TYPE : INFO_TYPE);
 			}
 			while (m_should_run.load() && !socket->is_connected())
 			{
