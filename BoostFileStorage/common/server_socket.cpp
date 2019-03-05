@@ -2,8 +2,8 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket(unsigned short port, size_t desired_buffer_size)
-		: socket(), m_state(CLOSED), m_context(), m_acceptor(m_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+	server_socket::server_socket(size_t desired_buffer_size, boost::asio::io_context *context, boost::asio::ip::tcp::acceptor *acceptor)
+		: socket(), m_state(CLOSED), m_context(context), m_acceptor(acceptor)
 	{
 		m_tcp_socket = nullptr;
 		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
@@ -15,9 +15,6 @@ namespace boost_file_storage
 		{
 			close();
 		}
-
-		boost::system::error_code error;
-		m_acceptor.close(error);
 	}
 
 	boost::system::error_code server_socket::open()
@@ -25,7 +22,7 @@ namespace boost_file_storage
 		if (is_closed())
 		{
 			boost::system::error_code error;
-			m_tcp_socket = new boost::asio::ip::tcp::socket(m_context);
+			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
 			m_state = OPENED;
 			return error;
 		}
@@ -40,10 +37,10 @@ namespace boost_file_storage
 		if (is_opened())
 		{
 			boost::system::error_code error;
-			m_acceptor.wait(boost::asio::ip::tcp::acceptor::wait_read, error);
+			m_acceptor->wait(boost::asio::ip::tcp::acceptor::wait_read, error);
 			if (!error)
 			{
-				m_acceptor.accept(*m_tcp_socket, error);
+				m_acceptor->accept(*m_tcp_socket, error);
 				if (!error)
 				{
 					m_state = CONNECTED;
@@ -67,7 +64,6 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		if (!is_closed())
 		{
-			m_acceptor.cancel(error);
 			m_tcp_socket->cancel(error);
 			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
 			m_tcp_socket->close(error);

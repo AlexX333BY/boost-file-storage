@@ -5,7 +5,8 @@
 
 namespace boost_file_storage
 {
-	server::server(logger *logger) : m_state(UNINITIALIZED), m_should_run(false), m_thread_count(0), m_logger(logger)
+	server::server(logger *logger) : m_state(UNINITIALIZED), m_should_run(false), m_thread_count(0), m_logger(logger), 
+		m_context(nullptr), m_acceptor(nullptr)
 	{ }
 
 	server::~server()
@@ -89,11 +90,12 @@ namespace boost_file_storage
 			std::experimental::filesystem::path path(download_folder);
 			if (std::experimental::filesystem::exists(path) && std::experimental::filesystem::is_directory(path))
 			{
-				server_socket *socket;
+				m_context = new boost::asio::io_context();
+				m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), listen_port));
+				
 				for (int i = 0; i < max_simultaneous_downloads; ++i)
 				{
-					socket = new server_socket(listen_port, max_file_size);
-					m_sockets.push_back(socket);
+					m_sockets.push_back(new server_socket(max_file_size, m_context, m_acceptor));
 				}
 
 				m_download_folder = path;
@@ -150,6 +152,7 @@ namespace boost_file_storage
 		{
 			m_should_run.store(false);
 
+			m_acceptor->close();
 			for (std::vector<server_socket *>::const_iterator it = m_sockets.cbegin(); it != m_sockets.cend(); ++it)
 			{
 				(*it)->close();
@@ -163,6 +166,8 @@ namespace boost_file_storage
 			clear_sockets();
 
 			m_state = UNINITIALIZED;
+			delete m_acceptor;
+			delete m_context;
 			log_if_logger_exists(m_logger, "Server stopped", INFO_TYPE);
 			return true;
 		}
