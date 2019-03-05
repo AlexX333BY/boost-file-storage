@@ -328,3 +328,10 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Event provider compiling output
+BoostFileStorage/service/*.dll
+BoostFileStorage/service/*.rc
+BoostFileStorage/service/*.res
+BoostFileStorage/service/*.bin
+BoostFileStorage/service/*.aps

@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="checked_logger.h" />
     <ClInclude Include="message_handlers.h" />
     <ClInclude Include="server.h" />
   </ItemGroup>
@@ -136,6 +137,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="checked_logger.cpp" />
     <ClCompile Include="message_handlers.cpp" />
     <ClCompile Include="server.cpp" />
   </ItemGroup>

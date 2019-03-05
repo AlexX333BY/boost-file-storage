@@ -29,7 +29,6 @@ namespace boost_file_storage
 	protected:
 		void clear_sockets();
 		void clear_threads();
-		void log_if_logger_exists(const std::string &message);
 		std::vector<server_socket *> m_sockets;
 		std::vector<std::thread *> m_threads;
 		std::experimental::filesystem::path m_download_folder;
@@ -38,5 +37,7 @@ namespace boost_file_storage
 		std::atomic_bool m_should_run;
 		logger *m_logger;
 		void socket_routine(server_socket *socket);
+		boost::asio::io_context *m_context;
+		boost::asio::ip::tcp::acceptor *m_acceptor;
 	};
 }

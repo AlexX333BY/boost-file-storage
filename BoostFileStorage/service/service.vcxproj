@@ -131,6 +131,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoostFileStorageEventProvider.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="ServiceArguments.h" />
     <ClInclude Include="ServiceLogger.h" />
@@ -139,6 +140,10 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="ServiceArguments.cpp" />
+    <ClCompile Include="ServiceLogger.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BoostFileStorageEventProvider.mc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

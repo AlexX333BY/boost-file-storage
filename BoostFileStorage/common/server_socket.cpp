@@ -2,12 +2,10 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket(unsigned short port, size_t desired_buffer_size)
-		: socket(), m_state(CLOSED), m_context(new boost::asio::io_context())
+	server_socket::server_socket(size_t desired_buffer_size, boost::asio::io_context *context, boost::asio::ip::tcp::acceptor *acceptor)
+		: socket(), m_state(CLOSED), m_context(context), m_acceptor(acceptor)
 	{
 		m_tcp_socket = nullptr;
-		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
-		m_acceptor = new boost::asio::ip::tcp::acceptor(*m_context, endpoint);
 		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
 	}
 
@@ -17,12 +15,6 @@ namespace boost_file_storage
 		{
 			close();
 		}
-
-		boost::system::error_code error;
-		m_acceptor->close(error);
-
-		delete m_acceptor;
-		delete m_context;
 	}
 
 	boost::system::error_code server_socket::open()
@@ -30,12 +22,8 @@ namespace boost_file_storage
 		if (is_closed())
 		{
 			boost::system::error_code error;
-			m_acceptor->open(boost::asio::ip::tcp::v4(), error);
-			if (!error || (error.value() == boost::system::errc::operation_not_permitted))
-			{
-				m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
-				m_state = OPENED;
-			}
+			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+			m_state = OPENED;
 			return error;
 		}
 		else
@@ -44,24 +32,22 @@ namespace boost_file_storage
 		}
 	}
 
-	void server_socket::accept_handler(const boost::system::error_code& error)
-	{
-		m_accept_error = error;
-	}
-
 	boost::system::error_code server_socket::accept()
 	{
 		if (is_opened())
 		{
 			boost::system::error_code error;
-			m_acceptor->async_accept(*m_tcp_socket, std::bind(&server_socket::accept_handler, this, std::placeholders::_1));
-			m_context->run(error);
-			if (!error && !m_accept_error)
+			m_acceptor->wait(boost::asio::ip::tcp::acceptor::wait_read, error);
+			if (!error)
 			{
-				m_state = CONNECTED;
+				m_acceptor->accept(*m_tcp_socket, error);
+				if (!error)
+				{
+					m_state = CONNECTED;
+				}
 			}
 
-			return error ? error : m_accept_error;
+			return error;
 		}
 		else if (is_connected())
 		{
@@ -78,7 +64,6 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		if (!is_closed())
 		{
-			m_acceptor->close(error);
 			m_tcp_socket->cancel(error);
 			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
 			m_tcp_socket->close(error);

@@ -24,6 +24,9 @@
     <ClInclude Include="ServiceLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BoostFileStorageEventProvider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Service.cpp">
@@ -35,5 +38,13 @@
     <ClCompile Include="ServiceArguments.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ServiceLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BoostFileStorageEventProvider.mc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
