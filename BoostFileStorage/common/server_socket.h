@@ -15,9 +15,7 @@ namespace boost_file_storage
 		virtual socket_state get_state();
 	protected:
 		socket_state m_state;
-		boost::asio::ip::tcp::acceptor *m_acceptor;
-		boost::asio::io_context *m_context;
-		boost::system::error_code m_accept_error;
-		void accept_handler(const boost::system::error_code& error);
+		boost::asio::io_context m_context;
+		boost::asio::ip::tcp::acceptor m_acceptor;
 	};
 }
