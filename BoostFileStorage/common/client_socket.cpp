@@ -51,12 +51,17 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		if (!is_closed())
 		{
-			m_tcp_socket->cancel(error);
-			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-			m_tcp_socket->close(error);
-			delete m_tcp_socket;
-			m_tcp_socket = nullptr;
-			m_state = CLOSED;
+			m_close_mutex.lock();
+			if (!is_closed())
+			{
+				m_state = CLOSED;
+				m_tcp_socket->cancel(error);
+				m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+				m_tcp_socket->close(error);
+				delete m_tcp_socket;
+				m_tcp_socket = nullptr;
+			}
+			m_close_mutex.unlock();
 		}
 		return error;
 	}

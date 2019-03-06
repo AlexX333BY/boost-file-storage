@@ -21,9 +21,9 @@ namespace boost_file_storage
 	{
 		if (is_closed())
 		{
+			m_state = OPENED;
 			boost::system::error_code error;
 			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
-			m_state = OPENED;
 			return error;
 		}
 		else
@@ -64,12 +64,17 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		if (!is_closed())
 		{
-			m_tcp_socket->cancel(error);
-			m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
-			m_tcp_socket->close(error);
-			delete m_tcp_socket;
-			m_tcp_socket = nullptr;
-			m_state = CLOSED;
+			m_close_mutex.lock();
+			if (!is_closed())
+			{
+				m_state = CLOSED;
+				m_tcp_socket->cancel(error);
+				m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
+				m_tcp_socket->close(error);
+				delete m_tcp_socket;
+				m_tcp_socket = nullptr;
+			}
+			m_close_mutex.unlock();
 		}
 		return error;
 	}

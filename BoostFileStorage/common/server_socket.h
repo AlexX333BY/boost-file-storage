@@ -16,5 +16,6 @@ namespace boost_file_storage
 		socket_state m_state;
 		boost::asio::io_context *m_context;
 		boost::asio::ip::tcp::acceptor *m_acceptor;
+		std::mutex m_close_mutex;
 	};
 }

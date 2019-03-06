@@ -16,5 +16,6 @@ namespace boost_file_storage
 	protected:
 		boost::asio::io_context *m_context;
 		socket_state m_state;
+		std::mutex m_close_mutex;
 	};
 }
