@@ -124,7 +124,7 @@ namespace boost_file_storage
 	BOOL StartStorageService()
 	{
 		size_t sServiceNameLength = lstrlen(lpcsServiceName);
-		TCHAR *szServiceName = new TCHAR[sServiceNameLength + 1];
+		LPTSTR szServiceName = new TCHAR[sServiceNameLength + 1];
 		strcpy_s(szServiceName, sServiceNameLength + 1, lpcsServiceName);
 
 		SERVICE_TABLE_ENTRY aServiceStartTable[] =
@@ -133,6 +133,8 @@ namespace boost_file_storage
 			{ NULL, NULL }
 		};
 
-		return StartServiceCtrlDispatcher(aServiceStartTable);
+		BOOL bResult = StartServiceCtrlDispatcher(aServiceStartTable);
+		delete[] szServiceName;
+		return bResult;
 	}
 }
