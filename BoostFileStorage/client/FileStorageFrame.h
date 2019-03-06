@@ -60,7 +60,7 @@ namespace boost_file_storage
 		void SocketListeningRoutine(wxIPV4address address);
 		socket_message *QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
 		socket_message *SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
-		void SendMessageResultNotification(socket_message *message, std::string *filename = nullptr);
+		void SendMessageResultNotification(socket_message *message, const std::string &filename);
 
 		const int m_addFileButtonId = wxID_ADD, m_addFolderButtonId = wxID_ADD + 1, 
 			m_connectButtonId = wxID_NETWORK, m_disconnectButtonId = wxID_NETWORK + 1;

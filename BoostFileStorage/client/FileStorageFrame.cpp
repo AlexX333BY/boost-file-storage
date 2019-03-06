@@ -396,7 +396,7 @@ namespace boost_file_storage
 					message = QueryFileName(processFilePath, error);
 					if (!error)
 					{
-						SendMessageResultNotification(message, &processFilePath.string());
+						SendMessageResultNotification(message, processFilePath.string());
 						if (!message->is_error_message())
 						{
 							delete message;
@@ -406,7 +406,7 @@ namespace boost_file_storage
 							{
 								if (message != nullptr)
 								{
-									SendMessageResultNotification(message, &processFilePath.string());
+									SendMessageResultNotification(message, processFilePath.string());
 									delete message;
 								}
 								else
@@ -476,34 +476,23 @@ namespace boost_file_storage
 		}
 	}
 
-	void FileStorageFrame::SendMessageResultNotification(socket_message *message, std::string *filename)
+	void FileStorageFrame::SendMessageResultNotification(socket_message *message, const std::string &filename)
 	{
 		switch (message->get_message_type())
 		{
 		case ERROR_TOO_BIG:
-			if (filename != nullptr)
-			{
-				NotifyFileProcessed(TOO_BIG, *filename);
-			}
+			NotifyFileProcessed(TOO_BIG, filename);
 			break;
 		case ERROR_NO_SPACE:
-			if (filename != nullptr)
-			{
-				NotifyFileProcessed(NO_SPACE, *filename);
-			}
+			NotifyFileProcessed(NO_SPACE, filename);
 			break;
 		case WARNING_NAME_EXISTS:
-			if (filename != nullptr)
-			{
-				NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", *filename,
-					wxString((char *)message->get_buffer(), message->get_buffer_length())));
-			}
+			NotifyFileProcessed(SERVER_CHANGED_NAME, wxString::Format("%s\n%s", filename,
+				wxString((char *)message->get_buffer(), message->get_buffer_length())));
 			break;
 		case FILE_TRANSFER_SUCCESS:
-			if (filename != nullptr)
-			{
-				NotifyFileProcessed(SENT, *filename);
-			}
+			NotifyFileProcessed(SENT, filename);
+			break;
 		}
 	}
 }
