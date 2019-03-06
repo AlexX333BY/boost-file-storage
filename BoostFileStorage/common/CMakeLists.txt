@@ -4,10 +4,9 @@ project (BoostFileStorage)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Boost REQUIRED COMPONENTS system)
-if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
-	link_directories(${Boost_LIBRARY_DIRS})
-endif(Boost_FOUND)
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 file(GLOB SOURCES "*.cpp" "*.h")
 
