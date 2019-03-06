@@ -10,7 +10,7 @@ namespace boost_file_storage
 	SERVICE_STATUS_HANDLE g_hServiceStatusHandle;
 	SERVICE_STATUS g_ssServiceStatus;
 	HANDLE g_hStopEvent;
-	server *g_sStorageServer;
+	server *g_sStorageServer = nullptr;
 
 	const DWORD dwEventCreationError = 1;
 	const DWORD dwServerStartupError = 2;
@@ -40,15 +40,20 @@ namespace boost_file_storage
 
 	VOID WINAPI ServiceCtrlHandler(DWORD dwCtrl)
 	{
+		DWORD dwCheckPoint;
 		switch (dwCtrl)
 		{
 		case SERVICE_CONTROL_SHUTDOWN:
 		case SERVICE_CONTROL_STOP:
-			ReportServiceStatus(SERVICE_STOP_PENDING, 0, 5 * dwDefaultWaitHint);
-			g_sStorageServer->stop();
-			ReportServiceStatus(SERVICE_STOP_PENDING, 1);
-			delete g_sStorageServer;
-			ReportServiceStatus(SERVICE_STOP_PENDING, 2);
+			dwCheckPoint = 0;
+			if (g_sStorageServer != nullptr)
+			{
+				ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint++, 5 * dwDefaultWaitHint);
+				g_sStorageServer->stop();
+				ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint++);
+				delete g_sStorageServer;
+			}
+			ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint);
 			SetEvent(g_hStopEvent);
 			return;
 		default:
