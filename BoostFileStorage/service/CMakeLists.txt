@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 3.12)
 project (BoostFileStorage)
 
 if(WIN32)
+	file(GLOB SOURCES "*.cpp")
+	file(GLOB HEADERS "*.h")
+
+	source_group("Sources" FILES ${SOURCES})
+	source_group("Headers" FILES ${HEADERS})
+
 	set(Boost_USE_STATIC_LIBS ON)
 	set(Boost_USE_MULTITHREADED ON)
 	find_package(Boost REQUIRED COMPONENTS system)
@@ -19,7 +25,7 @@ if(WIN32)
 		add_subdirectory("../server" "_deps/server")
 	endif()
 
-	add_executable(service Main.cpp)
+	add_executable(service ${HEADERS} ${SOURCES})
 	target_link_libraries(service ${Boost_LIBRARIES} common server)
 
 	target_compile_definitions(service PRIVATE "_WIN32_WINNT=0x0600")
