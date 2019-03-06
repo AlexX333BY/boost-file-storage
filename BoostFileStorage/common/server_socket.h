@@ -1,6 +1,5 @@
 #pragma once
 #include "socket.h"
-#include "socket_state.h"
 
 namespace boost_file_storage
 {

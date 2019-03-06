@@ -25,7 +25,6 @@
     <ClInclude Include="server_socket.h" />
     <ClInclude Include="socket.h" />
     <ClInclude Include="socket_message.h" />
-    <ClInclude Include="socket_state.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client_socket.cpp" />

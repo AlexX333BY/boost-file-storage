@@ -1,10 +1,16 @@
 #pragma once
 #include "socket_message.h"
-#include "socket_state.h"
 #include <boost/asio.hpp>
 
 namespace boost_file_storage
 {
+	enum socket_state
+	{
+		OPENED,
+		CONNECTED,
+		CLOSED
+	};
+
 	class socket
 	{
 	public:

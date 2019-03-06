@@ -27,9 +27,6 @@
     <ClInclude Include="socket_message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="socket_state.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
