@@ -20,7 +20,10 @@ namespace boost_file_storage
 			clear_sockets();
 		}
 
-		delete m_logger;
+		if (m_logger != nullptr)
+		{
+			delete m_logger;
+		}
 	}
 
 	void server::socket_routine(server_socket *socket)
