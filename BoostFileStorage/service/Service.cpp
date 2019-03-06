@@ -2,6 +2,8 @@
 #include <strsafe.h>
 #include "ServiceLogger.h"
 #include "BoostFileStorageEventProvider.h"
+#include "../server/server.h"
+#include "ServiceArguments.h"
 
 namespace boost_file_storage
 {

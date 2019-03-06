@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../server/server.h"
-#include "ServiceArguments.h"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 namespace boost_file_storage
 {
