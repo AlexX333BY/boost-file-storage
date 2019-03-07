@@ -13,7 +13,7 @@ int main()
 	const size_t dbg_max_file_size = 65536;
 	const unsigned char dbg_threads = 1;
 
-	server *s = new server(new console_logger("Server"));
+	server *s = new server(std::make_unique<console_logger>("Server"));
 	if (s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads))
 	{
 		if (s->start())

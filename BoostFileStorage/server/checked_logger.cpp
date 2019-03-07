@@ -2,9 +2,9 @@
 
 namespace boost_file_storage
 {
-	void log_if_logger_exists(logger *logger, const std::string &message, log_message_type type)
+	void log_if_logger_exists(std::shared_ptr<logger> logger, const std::string &message, log_message_type type)
 	{
-		if (logger != nullptr)
+		if (logger)
 		{
 			switch (type)
 			{
