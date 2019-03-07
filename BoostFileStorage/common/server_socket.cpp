@@ -35,29 +35,38 @@ namespace boost_file_storage
 
 	boost::system::error_code server_socket::accept()
 	{
+		bool was_opened = false;
+		boost::system::error_code error;
 		if (is_opened())
 		{
-			boost::system::error_code error;
-			m_acceptor->wait(boost::asio::ip::tcp::acceptor::wait_read, error);
-			if (!error)
+			m_state_mutex.lock();
+			if (is_opened())
 			{
-				m_acceptor->accept(*m_tcp_socket, error);
+				was_opened = true;
+				m_acceptor->wait(boost::asio::ip::tcp::acceptor::wait_read, error);
 				if (!error)
 				{
-					m_state = CONNECTED;
+					m_acceptor->accept(*m_tcp_socket, error);
+					if (!error)
+					{
+						m_state = CONNECTED;
+					}
 				}
 			}
-
-			return error;
+			m_state_mutex.unlock();
 		}
-		else if (is_connected())
+		if (!was_opened)
 		{
-			return boost::system::errc::make_error_code(boost::system::errc::already_connected);
+			if (is_connected())
+			{
+				error = boost::system::errc::make_error_code(boost::system::errc::already_connected);
+			}
+			else
+			{
+				error = boost::system::errc::make_error_code(boost::system::errc::no_stream_resources);
+			}
 		}
-		else
-		{
-			return boost::system::errc::make_error_code(boost::system::errc::no_stream_resources);
-		}
+		return error;
 	}
 
 	boost::system::error_code server_socket::close()
@@ -65,7 +74,7 @@ namespace boost_file_storage
 		boost::system::error_code error;
 		if (!is_closed())
 		{
-			m_close_mutex.lock();
+			m_state_mutex.lock();
 			if (!is_closed())
 			{
 				m_state = CLOSED;
@@ -74,7 +83,7 @@ namespace boost_file_storage
 				m_tcp_socket->close(error);
 				m_tcp_socket.reset();
 			}
-			m_close_mutex.unlock();
+			m_state_mutex.unlock();
 		}
 		return error;
 	}

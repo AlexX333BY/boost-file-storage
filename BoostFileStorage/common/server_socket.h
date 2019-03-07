@@ -17,6 +17,6 @@ namespace boost_file_storage
 		socket_state m_state;
 		std::shared_ptr<boost::asio::io_context> m_context;
 		std::shared_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
-		std::mutex m_close_mutex;
+		std::mutex m_state_mutex;
 	};
 }
