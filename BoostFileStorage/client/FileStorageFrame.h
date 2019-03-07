@@ -26,7 +26,7 @@ namespace boost_file_storage
 	protected:
 		LogMessagesGenerator m_logGenerator;
 		void Log(const wxString *messages, unsigned int count = 1);
-		client_socket *m_socket;
+		std::unique_ptr<client_socket> m_socket;
 		std::queue<std::experimental::filesystem::path> m_fileQueue;
 		std::mutex m_fileQueueMutex;
 		std::condition_variable m_fileQueueConditionVariable;
@@ -58,9 +58,9 @@ namespace boost_file_storage
 		void NotifyStatusBarUpdate(int valueUpdate, int rangeUpdate = 0, const wxString &filename = "");
 
 		void SocketListeningRoutine(wxIPV4address address);
-		socket_message *QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
-		socket_message *SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
-		void SendMessageResultNotification(socket_message *message, const std::string &filename);
+		std::shared_ptr<socket_message> QueryFileName(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+		std::shared_ptr<socket_message> SendFile(std::experimental::filesystem::path &filePath, boost::system::error_code &error);
+		void SendMessageResultNotification(socket_message &message, const std::string &filename);
 
 		const int m_addFileButtonId = wxID_ADD, m_addFolderButtonId = wxID_ADD + 1, 
 			m_connectButtonId = wxID_NETWORK, m_disconnectButtonId = wxID_NETWORK + 1;

@@ -12,7 +12,7 @@ namespace boost_file_storage
 		const wxString hostHint = "Host:", portHint = "Port:", submitHint = "Submit", cancelHint = "Cancel";
 		
 		wxPanel *panel = new wxPanel(this);
-		m_ipControl = std::make_unique<wxTextCtrl>(wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr)));
+		m_ipControl = std::make_unique<wxTextCtrl>(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr));
 		m_portControl = std::make_unique<wxTextCtrl>(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
 
 		wxFlexGridSizer *inputSizer = new wxFlexGridSizer(rowCount, columnCount, vGap, hGap);
