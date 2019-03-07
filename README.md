@@ -1,7 +1,7 @@
 # boost-file-storage
 File storage server (Windows service) and client written using boost::asio
 ### Running
-0. Install [wxWidgets](https://www.wxwidgets.org/), [boost](https://www.boost.org/) and [CMake 3.12+](https://cmake.org/) or [VS command prompt](https://docs.microsoft.com/en-us/dotnet/framework/tools/developer-command-prompt-for-vs);
+0. Install [wxWidgets](https://www.wxwidgets.org/), [boost](https://www.boost.org/), [Visual Studio](https://visualstudio.microsoft.com/) and [CMake 3.12+](https://cmake.org/) (optional).
 1. Compile `service` and `client` with CMakeLists or VS project files.
 2. Compile event logger:
 	1. Enter VS command line tool in `service` directory.
