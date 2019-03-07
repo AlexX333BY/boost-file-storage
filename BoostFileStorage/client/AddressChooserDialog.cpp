@@ -12,15 +12,15 @@ namespace boost_file_storage
 		const wxString hostHint = "Host:", portHint = "Port:", submitHint = "Submit", cancelHint = "Cancel";
 		
 		wxPanel *panel = new wxPanel(this);
-		m_ipControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr));
-		m_portControl = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
+		m_ipControl = std::make_unique<wxTextCtrl>(wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, IpValidator(nullptr)));
+		m_portControl = std::make_unique<wxTextCtrl>(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, PortValidator(nullptr));
 
 		wxFlexGridSizer *inputSizer = new wxFlexGridSizer(rowCount, columnCount, vGap, hGap);
 		
 		inputSizer->Add(new wxStaticText(panel, wxID_ANY, hostHint), 0, wxALIGN_CENTER);
-		inputSizer->Add(m_ipControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		inputSizer->Add(m_ipControl.get(), 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 		inputSizer->Add(new wxStaticText(panel, wxID_ANY, portHint), 0, wxALIGN_CENTER);
-		inputSizer->Add(m_portControl, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+		inputSizer->Add(m_portControl.get(), 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
 		wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 		buttonSizer->Add(new wxButton(panel, m_cancelButtonId, cancelHint), 1, wxALIGN_LEFT | wxLEFT | wxRIGHT, hGap);
