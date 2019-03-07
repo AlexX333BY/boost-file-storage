@@ -72,5 +72,3 @@
 //
 #define INFO_MESSAGE                     ((DWORD)0x40000102L)
 
-#define EVENT_PROVIDER_NAME "BoostFileStorageEventProvider"
-
