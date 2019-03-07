@@ -70,14 +70,13 @@ namespace boost_file_storage
 			m_socket->close();
 		}
 
-		if (m_socket_thread != nullptr)
+		if (m_socket_thread)
 		{
 			m_fileQueueConditionVariable.notify_one();
 			if (m_socket_thread->joinable())
 			{
 				m_socket_thread->join();
 			}
-			delete m_socket_thread;
 		}
 	}
 
@@ -156,7 +155,7 @@ namespace boost_file_storage
 			if (addressDlg.ShowModal() == wxID_APPLY)
 			{
 				Log(&m_logGenerator.GenerateConnectAttemptMessage(addressDlg.GetAddress()));
-				m_socket_thread = new std::thread(&FileStorageFrame::SocketListeningRoutine, this, addressDlg.GetAddress());
+				m_socket_thread.reset(new std::thread(&FileStorageFrame::SocketListeningRoutine, this, addressDlg.GetAddress()));
 			}
 		}
 		else
@@ -188,14 +187,13 @@ namespace boost_file_storage
 
 	void FileStorageFrame::OnSocketDisconnected(ConnectionEvent& event)
 	{
-		if (m_socket_thread != nullptr)
+		if (m_socket_thread)
 		{
 			if (m_socket_thread->joinable())
 			{
 				m_socket_thread->join();
 			}
-			delete m_socket_thread;
-			m_socket_thread = nullptr;
+			m_socket_thread.reset();
 		}
 
 		m_connectButton->SetLabel(connectCaption);
