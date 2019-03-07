@@ -43,22 +43,23 @@ namespace boost_file_storage
 		}
 	}
 
-	socket_message *socket::get_message(boost::system::error_code &error)
+	std::shared_ptr<socket_message> socket::get_message(boost::system::error_code &error)
 	{
+		std::shared_ptr<socket_message> message;
 		if (is_connected())
 		{
 			message_type type;
 			error = get_data(&type, sizeof(message_type), sizeof(message_type));
 			if (error)
 			{
-				return nullptr;
+				return message;
 			}
 
 			size_t data_size;
 			error = get_data(&data_size, sizeof(size_t), sizeof(size_t));
 			if (error)
 			{
-				return nullptr;
+				return message;
 			}
 
 			void *data_buffer = nullptr;
@@ -69,11 +70,11 @@ namespace boost_file_storage
 				if (error)
 				{
 					delete[] data_buffer;
-					return nullptr;
+					return message;
 				}
 			}
 
-			socket_message *message = new socket_message(type, data_size, data_buffer);
+			message.reset(new socket_message(type, data_size, data_buffer));
 			if (data_buffer != nullptr)
 			{
 				delete[] data_buffer;
@@ -83,17 +84,17 @@ namespace boost_file_storage
 		else
 		{
 			error = boost::system::errc::make_error_code(boost::system::errc::not_connected);
-			return nullptr;
+			return message;
 		}
 	}
 
-	void socket::send_message(socket_message *message, boost::system::error_code &error)
+	void socket::send_message(socket_message &message, boost::system::error_code &error)
 	{
 		if (is_connected())
 		{
-			message_type type = message->get_message_type();
-			void *data = message->get_buffer();
-			size_t data_size = message->get_buffer_length();
+			message_type type = message.get_message_type();
+			void *data = message.get_buffer();
+			size_t data_size = message.get_buffer_length();
 
 			error = send_data(&type, sizeof(message_type), sizeof(message_type));
 			if (error)

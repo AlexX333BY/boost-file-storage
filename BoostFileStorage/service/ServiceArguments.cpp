@@ -3,7 +3,7 @@
 
 namespace boost_file_storage
 {
-	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0), m_sDownloadFolder(NULL)
+	ServiceArguments::ServiceArguments() : m_sFileSize(0), m_ucThreadCount(0), m_usListenPort(0)
 	{ }
 
 	BOOL ServiceArguments::SetData(DWORD argc, LPTSTR *argv)

@@ -10,7 +10,7 @@ namespace boost_file_storage
 	SERVICE_STATUS_HANDLE g_hServiceStatusHandle;
 	SERVICE_STATUS g_ssServiceStatus;
 	HANDLE g_hStopEvent;
-	server *g_sStorageServer = nullptr;
+	std::unique_ptr<server> g_sStorageServer;
 
 	const DWORD dwEventCreationError = 1;
 	const DWORD dwServerStartupError = 2;
@@ -46,12 +46,12 @@ namespace boost_file_storage
 		case SERVICE_CONTROL_SHUTDOWN:
 		case SERVICE_CONTROL_STOP:
 			dwCheckPoint = 0;
-			if (g_sStorageServer != nullptr)
+			if (g_sStorageServer)
 			{
 				ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint++, 5 * dwDefaultWaitHint);
 				g_sStorageServer->stop();
 				ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint++);
-				delete g_sStorageServer;
+				g_sStorageServer.reset();
 			}
 			ReportServiceStatus(SERVICE_STOP_PENDING, dwCheckPoint);
 			SetEvent(g_hStopEvent);
@@ -71,6 +71,7 @@ namespace boost_file_storage
 		}
 
 		g_ssServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+
 		ReportServiceStatus(SERVICE_START_PENDING, 0);
 
 		ServiceArguments saArguments;
@@ -87,14 +88,15 @@ namespace boost_file_storage
 				return;
 			}
 
-			ServiceLogger *logger = new ServiceLogger();
-			logger->Initialize(NULL, EVENT_PROVIDER_NAME);
-			g_sStorageServer = new server(logger);
+			ServiceLogger *serviceLogger = new ServiceLogger();
+			serviceLogger->Initialize(NULL, EVENT_PROVIDER_NAME);
+			g_sStorageServer.reset(new server(std::unique_ptr<logger>(static_cast<logger *>(serviceLogger))));
 			ReportServiceStatus(SERVICE_START_PENDING, 3);
 
 			if (!g_sStorageServer->initialize(saArguments.GetListenPort(), saArguments.GetDownloadFolder(),
 				saArguments.GetMaxFileSize(), saArguments.GetSimultaneousDownloadCount()))
 			{
+				g_sStorageServer.reset();
 				ReportServiceStatus(SERVICE_STOPPED, 0, 0, ERROR_SERVICE_SPECIFIC_ERROR, dwServerInitializeError);
 				return;
 			}
@@ -103,7 +105,7 @@ namespace boost_file_storage
 
 			if (!g_sStorageServer->start())
 			{
-				delete g_sStorageServer;
+				g_sStorageServer.reset();
 				ReportServiceStatus(SERVICE_STOPPED, 0, 0, ERROR_SERVICE_SPECIFIC_ERROR, dwServerStartupError);
 				return;
 			}
