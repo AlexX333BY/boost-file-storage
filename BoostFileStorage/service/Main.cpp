@@ -3,27 +3,32 @@
 #include "../common/console_logger.h"
 #include <string>
 #include "ServiceLogger.h"
+#include "ServiceArguments.h"
 
 using namespace boost_file_storage;
 
-int main()
+int main(int argc, char **argv)
 {
-	const unsigned short dbg_port = 8080;
-	const std::string dbg_download_dir = "C:\\Users\\user\\Downloads";
-	const size_t dbg_max_file_size = 65536;
-	const unsigned char dbg_threads = 1;
-
-	server *s = new server(std::make_unique<console_logger>("Server"));
-	if (s->initialize(dbg_port, dbg_download_dir, dbg_max_file_size, dbg_threads))
+	ServiceArguments arguments;
+	if (arguments.SetData(argc, argv))
 	{
-		if (s->start())
+		server *s = new server(std::make_unique<console_logger>("Server"));
+		if (s->initialize(arguments.GetListenPort(), arguments.GetDownloadFolder(),
+			arguments.GetMaxFileSize(), arguments.GetSimultaneousDownloadCount()))
 		{
-			system("pause");
-			s->stop();
+			if (s->start())
+			{
+				system("pause");
+				s->stop();
+			}
 		}
+
+		delete s;
 	}
-		
-	delete s;
+	else
+	{
+		printf("Wrong data typed\n");
+	}
 	system("pause");
 	return 0;
 }
