@@ -18,7 +18,7 @@ namespace boost_file_storage
 		void OnSubmit(wxCommandEvent& event);
 		void OnCancel(wxCommandEvent& event);
 		wxIPV4address m_address;
-		std::unique_ptr<wxTextCtrl> m_ipControl, m_portControl;
+		wxTextCtrl *m_ipControl, *m_portControl;
 
 		const wxWindowID m_submitButtonId = wxID_APPLY, m_cancelButtonId = wxID_CANCEL;
 	};
