@@ -88,7 +88,7 @@ namespace boost_file_storage
 			}
 
 			ServiceLogger *logger = new ServiceLogger();
-			logger->Initialize(NULL, EVENT_PROVIDER_NAME);
+			logger->Initialize(NULL, lpcsEventProviderName);
 			g_sStorageServer = new server(logger);
 			ReportServiceStatus(SERVICE_START_PENDING, 3);
 

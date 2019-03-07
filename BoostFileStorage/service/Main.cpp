@@ -29,7 +29,7 @@ int main()
 }
 #else
 #include <stdio.h>
-#include "service.h"
+#include "Service.h"
 #include "ServiceArguments.h"
 #include <Windows.h>
 #include <strsafe.h>
@@ -40,21 +40,21 @@ const LPCTSTR lpcsInstallArgument = "-i";
 LPTSTR GetFullRegistryKeyPath()
 {
 	const LPCTSTR lpcsKeyDir = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\";
-	const int iNameLength = lstrlen(EVENT_PROVIDER_NAME), iDirLength = lstrlen(lpcsKeyDir), iPathLength = iNameLength + iDirLength;
+	const int iNameLength = lstrlen(boost_file_storage::lpcsEventProviderName), iDirLength = lstrlen(lpcsKeyDir), iPathLength = iNameLength + iDirLength;
 	const LPTSTR lpcsKeyPath = new TCHAR[iPathLength + 1];
 	lpcsKeyPath[0] = '\0';
 	strcat_s(lpcsKeyPath, iPathLength + 1, lpcsKeyDir);
-	strcat_s(lpcsKeyPath, iPathLength + 1, EVENT_PROVIDER_NAME);
+	strcat_s(lpcsKeyPath, iPathLength + 1, boost_file_storage::lpcsEventProviderName);
 	return lpcsKeyPath;
 }
 
 LPTSTR GetFullFilePath(LPDWORD lpdwFilePathLength)
 {
 	const LPCTSTR lpcsExt = ".dll";
-	int iFilenameLength = lstrlen(EVENT_PROVIDER_NAME) + lstrlen(lpcsExt);
+	int iFilenameLength = lstrlen(boost_file_storage::lpcsEventProviderName) + lstrlen(lpcsExt);
 	const LPTSTR lpsFileName = new TCHAR[iFilenameLength + 1];
 	lpsFileName[0] = '\0';
-	strcat_s(lpsFileName, iFilenameLength + 1, EVENT_PROVIDER_NAME);
+	strcat_s(lpsFileName, iFilenameLength + 1, boost_file_storage::lpcsEventProviderName);
 	strcat_s(lpsFileName, iFilenameLength + 1, lpcsExt);
 	LPTSTR lpsFilePath = new TCHAR[MAX_PATH + 1];
 	*lpdwFilePathLength = GetFullPathName(lpsFileName, MAX_PATH + 1, lpsFilePath, NULL);
