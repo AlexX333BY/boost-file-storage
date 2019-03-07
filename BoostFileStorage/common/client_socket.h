@@ -14,7 +14,7 @@ namespace boost_file_storage
 		virtual boost::system::error_code close();
 		virtual socket_state get_state();
 	protected:
-		boost::asio::io_context *m_context;
+		std::unique_ptr<boost::asio::io_context> m_context;
 		socket_state m_state;
 		std::mutex m_close_mutex;
 	};
