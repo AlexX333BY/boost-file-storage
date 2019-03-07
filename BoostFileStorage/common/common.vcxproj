@@ -33,6 +33,9 @@
     <ClCompile Include="socket.cpp" />
     <ClCompile Include="socket_message.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{DBB770E4-1658-4324-ACF4-C0170B31F22F}</ProjectGuid>
