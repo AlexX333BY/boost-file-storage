@@ -2,7 +2,8 @@
 
 namespace boost_file_storage
 {
-	server_socket::server_socket(size_t desired_buffer_size, boost::asio::io_context *context, boost::asio::ip::tcp::acceptor *acceptor)
+	server_socket::server_socket(size_t desired_buffer_size, std::shared_ptr<boost::asio::io_context> context,
+		std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor)
 		: socket(), m_state(CLOSED), m_context(context), m_acceptor(acceptor)
 	{
 		m_tcp_socket.reset();

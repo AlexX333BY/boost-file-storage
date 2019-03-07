@@ -15,8 +15,6 @@ namespace boost_file_storage
 		{
 			close();
 		}
-
-		delete m_context;
 	}
 
 	boost::system::error_code client_socket::connect(std::string ip, unsigned short port)
