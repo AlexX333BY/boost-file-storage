@@ -6,7 +6,7 @@ namespace boost_file_storage
 		: socket(), m_context(new boost::asio::io_context()), m_state(CLOSED)
 	{ 
 		m_buffer_size = std::max(std::max(sizeof(message_type), sizeof(size_t)), desired_buffer_size);
-		m_tcp_socket = nullptr;
+		m_tcp_socket.reset();
 	}
 
 	client_socket::~client_socket()
@@ -58,8 +58,7 @@ namespace boost_file_storage
 				m_tcp_socket->cancel(error);
 				m_tcp_socket->shutdown(m_tcp_socket->shutdown_both, error);
 				m_tcp_socket->close(error);
-				delete m_tcp_socket;
-				m_tcp_socket = nullptr;
+				m_tcp_socket.reset();
 			}
 			m_close_mutex.unlock();
 		}
@@ -70,7 +69,7 @@ namespace boost_file_storage
 	{
 		if (is_closed())
 		{
-			m_tcp_socket = new boost::asio::ip::tcp::socket(*m_context);
+			m_tcp_socket.reset(new boost::asio::ip::tcp::socket(*m_context));
 			m_state = OPENED;
 			return boost::system::error_code();
 		}

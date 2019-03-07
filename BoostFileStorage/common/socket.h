@@ -1,6 +1,7 @@
 #pragma once
 #include "socket_message.h"
 #include <boost/asio.hpp>
+#include <memory>
 
 namespace boost_file_storage
 {
@@ -29,7 +30,7 @@ namespace boost_file_storage
 		virtual bool is_connected();
 		virtual socket_state get_state() = 0;
 	protected:
-		boost::asio::ip::tcp::socket *m_tcp_socket;
+		std::unique_ptr<boost::asio::ip::tcp::socket> m_tcp_socket;
 		size_t m_buffer_size;
 	};
 }
