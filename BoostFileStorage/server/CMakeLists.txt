@@ -7,11 +7,6 @@ file(GLOB HEADERS "*.h")
 source_group("Sources" FILES ${SOURCES})
 source_group("Headers" FILES ${HEADERS})
 
-if (NOT TARGET common)
-	include_directories("../common")
-	add_subdirectory("../common" "_deps/common")
-endif()
-
 add_library(server STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(server ${Boost_LIBRARIES} common)
 if(WIN32)

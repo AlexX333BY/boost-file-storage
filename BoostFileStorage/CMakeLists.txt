@@ -8,5 +8,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
+add_subdirectory(common)
+add_subdirectory(server)
 add_subdirectory(service)
 add_subdirectory(client)

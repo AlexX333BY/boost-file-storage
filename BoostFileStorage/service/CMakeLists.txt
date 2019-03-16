@@ -8,16 +8,6 @@ if(WIN32)
 	source_group("Sources" FILES ${SOURCES})
 	source_group("Headers" FILES ${HEADERS})
 
-	if (NOT TARGET common)
-		include_directories("../common")
-		add_subdirectory("../common" "_deps/common")
-	endif()
-	
-	if (NOT TARGET server)
-		include_directories("../server")
-		add_subdirectory("../server" "_deps/server")
-	endif()
-
 	add_executable(service ${HEADERS} ${SOURCES})
 	target_link_libraries(service ${Boost_LIBRARIES} common server)
 
