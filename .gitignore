@@ -335,3 +335,8 @@ BoostFileStorage/service/*.rc
 BoostFileStorage/service/*.res
 BoostFileStorage/service/*.bin
 BoostFileStorage/service/*.aps
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
