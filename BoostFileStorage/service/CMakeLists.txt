@@ -8,13 +8,6 @@ if(WIN32)
 	source_group("Sources" FILES ${SOURCES})
 	source_group("Headers" FILES ${HEADERS})
 
-	set(Boost_USE_STATIC_LIBS ON)
-	set(Boost_USE_MULTITHREADED ON)
-	find_package(Boost REQUIRED COMPONENTS system)
-
-	include_directories(${Boost_INCLUDE_DIRS})
-	link_directories(${Boost_LIBRARY_DIRS})
-
 	if (NOT TARGET common)
 		include_directories("../common")
 		add_subdirectory("../common" "_deps/common")
