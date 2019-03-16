@@ -8,7 +8,7 @@ source_group("Sources" FILES ${SOURCES})
 source_group("Headers" FILES ${HEADERS})
 
 add_library(server STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(server ${Boost_LIBRARIES} common)
+
 if(WIN32)
 	target_compile_definitions(server PRIVATE "_WIN32_WINNT=0x0600")
 endif(WIN32)

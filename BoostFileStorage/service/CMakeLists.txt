@@ -9,7 +9,6 @@ if(WIN32)
 	source_group("Headers" FILES ${HEADERS})
 
 	add_executable(service ${HEADERS} ${SOURCES})
-	target_link_libraries(service ${Boost_LIBRARIES} common server)
 
 	target_compile_definitions(service PRIVATE "_WIN32_WINNT=0x0600")
 else(WIN32)
